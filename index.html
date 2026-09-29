@@ -1,0 +1,1906 @@
+<!DOCTYPE html>
+<html lang="en-PH">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pinch E-Class Record — Windows-based ECR for Filipino Teachers</title>
+<meta name="description" content="Pinch E-Class Record is a Windows-based e-Class Record system for managing learners, activities, scores, term grades, class records, and Excel ECR templates with automatic grade computation and class-record packaging. macOS version coming soon.">
+
+<!-- ============ FONT AWESOME ============ -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer">
+
+<style>
+/* ============ RESET & BASE ============ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --brand-primary: #0f6c5c;
+  --brand-primary-dark: #0a4f42;
+  --brand-accent: #e8a838;
+  --brand-light: #f2f7f6;
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a4a4a;
+  --text-muted: #737373;
+  --border: #e1e1e1;
+  --white: #ffffff;
+  --max-width: 1280px;
+  --radius: 8px;
+  --shadow-sm: 0 2px 6px rgba(0,0,0,.06);
+  --shadow-md: 0 6px 20px rgba(0,0,0,.10);
+  --shadow-lg: 0 20px 60px rgba(0,0,0,.18);
+  --transition: .25s ease;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text-primary);
+  line-height: 1.6;
+  background: var(--white);
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+ul { list-style: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+.container { max-width: var(--max-width); margin: 0 auto; padding: 0 24px; }
+
+/* ============ WINDOWS 11 ICON (inline SVG) ============ */
+.win11-icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+.win11-icon.blue { fill: #0078D4; }
+
+/* ============ UTILITY BAR ============ */
+.utility-bar {
+  background: var(--brand-primary-dark);
+  color: rgba(255,255,255,.85);
+  font-size: .8125rem;
+  padding: 6px 0;
+}
+.utility-bar .container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 24px;
+}
+.utility-bar a {
+  transition: color var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.utility-bar a:hover { color: var(--white); }
+.utility-bar .divider { opacity: .3; }
+.utility-bar .highlight { color: var(--brand-accent); font-weight: 600; }
+
+/* ============ NAVIGATION ============ */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255,255,255,.96);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  transition: box-shadow var(--transition);
+}
+.navbar.scrolled { box-shadow: var(--shadow-sm); }
+.navbar .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 1.35rem;
+  letter-spacing: -.02em;
+  color: var(--brand-primary);
+}
+.logo-mark {
+  width: 32px;
+  height: 32px;
+  background: var(--brand-primary);
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  color: var(--white);
+  font-size: 1rem;
+  font-weight: 800;
+}
+.logo span { color: var(--text-primary); }
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-links > li { position: relative; }
+.nav-links > li > a,
+.nav-links > li > button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: .9375rem;
+  color: var(--text-secondary);
+  border-radius: var(--radius);
+  transition: background var(--transition), color var(--transition);
+}
+.nav-links > li > a:hover,
+.nav-links > li > button:hover {
+  background: var(--brand-light);
+  color: var(--brand-primary);
+}
+.nav-links > li > button .fa-chevron-down {
+  font-size: .6875rem;
+  transition: transform var(--transition);
+}
+.nav-links > li.has-dropdown:hover > button .fa-chevron-down {
+  transform: rotate(180deg);
+}
+.nav-links .has-dropdown:hover .dropdown { display: block; }
+.dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 300px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  padding: 8px;
+  margin-top: 4px;
+}
+.dropdown a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  font-size: .875rem;
+  color: var(--text-secondary);
+  border-radius: 6px;
+  transition: background var(--transition), color var(--transition);
+}
+.dropdown a:hover {
+  background: var(--brand-light);
+  color: var(--brand-primary);
+}
+.dropdown a > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.dropdown a > span:first-child i,
+.dropdown a > span:first-child .win11-icon {
+  width: 16px;
+  text-align: center;
+  color: var(--brand-primary);
+}
+.dropdown a .badge {
+  display: inline-block;
+  font-size: .625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: #d4f0ea;
+  color: var(--brand-primary);
+}
+.dropdown a .badge.muted {
+  background: #f0f0f0;
+  color: var(--text-muted);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.search-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  transition: background var(--transition);
+  color: var(--text-secondary);
+}
+.search-toggle:hover { background: var(--brand-light); }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: var(--radius);
+  font-size: .9375rem;
+  font-weight: 600;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.btn i { font-size: .875rem; }
+.btn-primary {
+  background: var(--brand-primary);
+  color: var(--white);
+}
+.btn-primary:hover {
+  background: var(--brand-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+.btn-outline {
+  border: 1.5px solid var(--brand-primary);
+  color: var(--brand-primary);
+  background: transparent;
+}
+.btn-outline:hover { background: var(--brand-light); }
+.btn-lg { padding: 14px 32px; font-size: 1rem; }
+.btn-accent {
+  background: var(--brand-accent);
+  color: var(--text-primary);
+}
+.btn-accent:hover {
+  background: #d4952e;
+  transform: translateY(-1px);
+}
+
+/* ============ DOWNLOAD BUTTONS ============ */
+.download-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+.dl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 26px;
+  border-radius: var(--radius);
+  background: var(--text-primary);
+  color: var(--white);
+  font-weight: 600;
+  font-size: .9375rem;
+  transition: all var(--transition);
+  border: 1.5px solid var(--text-primary);
+  position: relative;
+}
+.dl-btn:hover {
+  background: #000;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.dl-btn .dl-icon {
+  font-size: 1.75rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+.dl-btn .dl-icon .win11-icon {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+.dl-btn .dl-icon i {
+  font-size: 1.75rem;
+}
+.dl-btn .dl-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.25;
+}
+.dl-btn .dl-text small {
+  font-size: .6875rem;
+  font-weight: 400;
+  opacity: .7;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+/* ---- Coming Soon (macOS) variant ---- */
+.dl-btn.soon {
+  background: rgba(0,0,0,.05);
+  border-color: rgba(0,0,0,.15);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+.dl-btn.soon .dl-icon { opacity: .6; }
+.dl-btn.soon .dl-text small { opacity: .8; }
+.dl-btn.soon:hover {
+  background: rgba(0,0,0,.08);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+.dl-btn.soon::after {
+  content: 'SOON';
+  position: absolute;
+  top: -8px;
+  right: -6px;
+  font-size: .5625rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  background: var(--brand-accent);
+  color: var(--text-primary);
+  padding: 2px 7px;
+  border-radius: 99px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+
+/* Light-on-dark variant */
+.dl-btn.light {
+  background: rgba(255,255,255,.1);
+  border-color: rgba(255,255,255,.35);
+  color: var(--white);
+}
+.dl-btn.light:hover {
+  background: rgba(255,255,255,.2);
+  border-color: var(--white);
+}
+.dl-btn.light.soon {
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.18);
+  color: rgba(255,255,255,.65);
+  cursor: not-allowed;
+}
+.dl-btn.light.soon .dl-icon { opacity: .6; }
+.dl-btn.light.soon:hover {
+  background: rgba(255,255,255,.1);
+  border-color: rgba(255,255,255,.25);
+  box-shadow: none;
+}
+
+/* ============ HERO ============ */
+.hero {
+  position: relative;
+  background: linear-gradient(135deg, #0a4f42 0%, #0f6c5c 50%, #148f7a 100%);
+  color: var(--white);
+  overflow: hidden;
+  padding: 88px 0 80px;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(232,168,56,.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255,255,255,.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+.hero .container {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(232,168,56,.18);
+  border: 1px solid rgba(232,168,56,.4);
+  color: var(--brand-accent);
+  font-size: .8125rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 99px;
+  margin-bottom: 20px;
+}
+.hero-content h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -.03em;
+  margin-bottom: 20px;
+}
+.hero-content h1 em {
+  font-style: normal;
+  color: var(--brand-accent);
+}
+.hero-content p {
+  font-size: 1.0625rem;
+  color: rgba(255,255,255,.88);
+  max-width: 560px;
+  margin-bottom: 32px;
+  line-height: 1.7;
+}
+.hero-meta {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin-top: 32px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(255,255,255,.15);
+}
+.hero-meta span {
+  font-size: .8125rem;
+  color: rgba(255,255,255,.6);
+}
+.hero-meta span strong {
+  display: block;
+  color: var(--white);
+  font-size: .9375rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+/* ============ HERO IMAGE (real photo) ============ */
+.hero-visual { position: relative; }
+.hero-image-wrapper {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(255,255,255,.12);
+  aspect-ratio: 4 / 3;
+  background: #1e1e2e;
+}
+.hero-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 8s ease;
+}
+.hero-image-wrapper:hover img {
+  transform: scale(1.03);
+}
+.hero-image-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10,79,66,0) 55%, rgba(10,79,66,.4) 100%);
+  pointer-events: none;
+}
+.hero-image-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,.95);
+  color: var(--brand-primary);
+  font-size: .8125rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 99px;
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(8px);
+}
+.hero-image-badge i {
+  color: var(--brand-primary);
+  font-size: .875rem;
+}
+
+/* ============ APP PREVIEW MOCKUP (used in flagship section) ============ */
+.app-preview {
+  background: #1e1e2e;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(255,255,255,.12);
+}
+.app-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #16161f;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.app-dot { width: 12px; height: 12px; border-radius: 50%; }
+.app-dot.red { background: #ff5f57; }
+.app-dot.yellow { background: #febc2e; }
+.app-dot.green { background: #28c840; }
+.app-title {
+  margin-left: 12px;
+  font-size: .75rem;
+  color: rgba(255,255,255,.5);
+  font-family: 'Consolas', monospace;
+}
+.app-body {
+  padding: 20px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: .75rem;
+}
+.app-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.app-chip {
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.7);
+  font-size: .6875rem;
+}
+.app-chip.active {
+  background: var(--brand-accent);
+  color: #1a1a1a;
+  font-weight: 700;
+}
+.app-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .6875rem;
+  color: rgba(255,255,255,.8);
+}
+.app-table th {
+  text-align: left;
+  padding: 8px 10px;
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.5);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  font-size: .625rem;
+}
+.app-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.app-table .name { color: var(--white); }
+.app-table .grade {
+  color: var(--brand-accent);
+  font-weight: 700;
+}
+.app-table .pass { color: #28c840; }
+.app-table .fail { color: #ff5f57; }
+.app-statusbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  font-size: .6875rem;
+  color: rgba(255,255,255,.5);
+}
+.app-statusbar span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ============ SECTION SHARED ============ */
+.section { padding: 80px 0; }
+.section-header {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 52px;
+}
+.section-header h2 {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  margin-bottom: 12px;
+}
+.section-header p {
+  color: var(--text-secondary);
+  font-size: 1.0625rem;
+}
+.section-alt { background: var(--brand-light); }
+
+/* ============ FLAGSHIP FEATURE ============ */
+.flagship {
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbfa 100%);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.flagship-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+.flagship-content .eyebrow {
+  display: inline-block;
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--brand-primary);
+  background: #d4f0ea;
+  padding: 5px 12px;
+  border-radius: 99px;
+  margin-bottom: 16px;
+}
+.flagship-content h2 {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+.flagship-content > p {
+  color: var(--text-secondary);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  margin-bottom: 24px;
+}
+.feature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 24px;
+  margin-bottom: 32px;
+}
+.feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: .9375rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.feature-item::before {
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  content: '\f00c';
+  color: var(--brand-primary);
+  flex-shrink: 0;
+}
+.flagship-meta {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  font-size: .8125rem;
+  color: var(--text-muted);
+}
+.flagship-meta span strong {
+  display: block;
+  color: var(--text-primary);
+  font-size: .9375rem;
+  font-weight: 600;
+}
+
+/* ============ FULL FEATURE GRID ============ */
+.feature-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.feature-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 26px;
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--brand-primary);
+}
+.feature-card .fc-num {
+  font-family: 'Consolas', monospace;
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--brand-primary);
+  background: #d4f0ea;
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 4px;
+  margin-bottom: 14px;
+  letter-spacing: .04em;
+}
+.feature-card h3 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  line-height: 1.35;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.feature-card h3 i {
+  color: var(--brand-primary);
+  font-size: 1rem;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.feature-card p {
+  font-size: .875rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.feature-card code {
+  display: inline-block;
+  font-family: 'Consolas', monospace;
+  font-size: .75rem;
+  background: var(--brand-light);
+  color: var(--brand-primary);
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin: 2px 2px 0 0;
+}
+
+/* ============ SPOTLIGHT ============ */
+.spotlight {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+.spotlight.reverse { direction: rtl; }
+.spotlight.reverse > * { direction: ltr; }
+.spotlight-visual {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  background: linear-gradient(135deg, #0f6c5c, #148f7a);
+  display: grid;
+  place-items: center;
+}
+.spotlight-visual-inner {
+  text-align: center;
+  color: var(--white);
+  padding: 32px;
+}
+.spotlight-visual-inner .spotlight-icon {
+  font-size: 3rem;
+  color: var(--brand-accent);
+  margin-bottom: 12px;
+  opacity: .9;
+}
+.spotlight-visual-inner .big-number {
+  font-size: 4.5rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--brand-accent);
+}
+.spotlight-visual-inner .big-label {
+  font-size: 1rem;
+  opacity: .85;
+  margin-top: 8px;
+}
+.spotlight-content h2 {
+  font-size: clamp(1.5rem, 2.5vw, 2.125rem);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  margin-bottom: 16px;
+}
+.spotlight-content p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.75;
+  margin-bottom: 24px;
+}
+.check-list { margin-bottom: 28px; }
+.check-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: .9375rem;
+  color: var(--text-secondary);
+}
+.check-list li::before {
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  content: '\f00c';
+  color: var(--brand-primary);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* ============ TILES GRID ============ */
+.tiles-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.tile {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px 28px;
+  transition: transform var(--transition), box-shadow var(--transition);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.tile:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+.tile.featured {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(15,108,92,.08);
+}
+.tile-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: .625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: 4px 9px;
+  border-radius: 99px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.tile-badge i { font-size: .5rem; }
+.tile-badge.available {
+  background: #d4f0ea;
+  color: var(--brand-primary);
+}
+.tile-badge.soon {
+  background: #f0f0f0;
+  color: var(--text-muted);
+}
+.tile-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
+  margin-bottom: 18px;
+}
+.tile-icon.teal { background: #d4f0ea; color: #0f6c5c; }
+.tile-icon.amber { background: #fdf0d5; color: #b07d1a; }
+.tile-icon.blue { background: #dce8f5; color: #2563a8; }
+.tile-icon.purple { background: #e8dcf5; color: #6b3fa0; }
+.tile-icon.coral { background: #fde2dc; color: #c0442a; }
+.tile-icon.green { background: #e0f0dc; color: #3a7d2a; }
+.tile h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.tile p {
+  font-size: .9375rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  flex: 1;
+}
+.tile-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  font-size: .875rem;
+  font-weight: 600;
+  color: var(--brand-primary);
+  transition: gap var(--transition);
+}
+.tile-link i { font-size: .75rem; transition: transform var(--transition); }
+.tile-link:hover i { transform: translateX(4px); }
+
+/* ============ NEWS ============ */
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.news-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.news-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+.news-card-image {
+  height: 170px;
+  display: grid;
+  place-items: center;
+  font-size: 3rem;
+  color: rgba(255,255,255,.9);
+}
+.news-card-body { padding: 22px 24px 26px; }
+.news-tag {
+  display: inline-block;
+  font-size: .6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: 4px 10px;
+  border-radius: 99px;
+  margin-bottom: 12px;
+}
+.news-tag.product { background: #d4f0ea; color: #0f6c5c; }
+.news-tag.policy { background: #dce8f5; color: #2563a8; }
+.news-tag.community { background: #fdf0d5; color: #b07d1a; }
+.news-tag.soon { background: #f0f0f0; color: var(--text-muted); }
+.news-card-body h3 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+.news-card-body p {
+  font-size: .875rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+.news-date {
+  font-size: .75rem;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ============ CTA ============ */
+.cta-banner {
+  background: linear-gradient(135deg, #0a4f42, #0f6c5c);
+  border-radius: 16px;
+  padding: 60px 48px;
+  text-align: center;
+  color: var(--white);
+  position: relative;
+  overflow: hidden;
+}
+.cta-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 70% 30%, rgba(232,168,56,.18) 0%, transparent 55%);
+}
+.cta-banner > * { position: relative; z-index: 1; }
+.cta-banner h2 {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 700;
+  margin-bottom: 14px;
+  letter-spacing: -.02em;
+}
+.cta-banner p {
+  font-size: 1.0625rem;
+  color: rgba(255,255,255,.85);
+  max-width: 580px;
+  margin: 0 auto 30px;
+}
+.cta-banner .download-group { justify-content: center; }
+.cta-note {
+  margin-top: 18px;
+  font-size: .8125rem;
+  color: rgba(255,255,255,.65);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ============ FOOTER ============ */
+.site-footer {
+  background: #111;
+  color: rgba(255,255,255,.7);
+  padding: 64px 0 32px;
+  font-size: .875rem;
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  gap: 40px;
+  margin-bottom: 48px;
+}
+.footer-brand .logo {
+  color: var(--white);
+  margin-bottom: 16px;
+}
+.footer-brand .logo span { color: rgba(255,255,255,.85); }
+.footer-brand p {
+  line-height: 1.7;
+  max-width: 300px;
+  margin-bottom: 20px;
+}
+.footer-social { display: flex; gap: 12px; }
+.footer-social a {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+  display: grid;
+  place-items: center;
+  transition: background var(--transition), color var(--transition), transform var(--transition);
+  color: rgba(255,255,255,.7);
+}
+.footer-social a:hover {
+  background: var(--brand-primary);
+  color: var(--white);
+  transform: translateY(-2px);
+}
+.footer-col h4 {
+  color: var(--white);
+  font-size: .8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 18px;
+}
+.footer-col ul li { margin-bottom: 10px; }
+.footer-col ul a {
+  transition: color var(--transition);
+  line-height: 1.5;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.footer-col ul a:hover { color: var(--white); }
+.footer-col ul a i {
+  font-size: .625rem;
+  color: var(--brand-accent);
+  opacity: .8;
+}
+.footer-col .soon-label {
+  color: rgba(255,255,255,.45);
+  font-size: .8125rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.footer-col .soon-label i {
+  font-size: .625rem;
+  color: var(--brand-accent);
+  opacity: .6;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,.1);
+  padding-top: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: .8125rem;
+}
+.footer-bottom-links { display: flex; gap: 24px; flex-wrap: wrap; }
+.footer-bottom-links a:hover { color: var(--white); }
+
+/* ============ MOBILE ============ */
+@media (max-width: 1024px) {
+  .hero .container { grid-template-columns: 1fr; gap: 40px; }
+  .hero-visual { order: -1; }
+  .feature-cards { grid-template-columns: repeat(2, 1fr); }
+  .news-grid { grid-template-columns: repeat(2, 1fr); }
+  .spotlight, .flagship-grid { grid-template-columns: 1fr; gap: 36px; }
+  .spotlight.reverse { direction: ltr; }
+  .tiles-grid { grid-template-columns: repeat(2, 1fr); }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .mobile-toggle { display: grid; }
+  .nav-links.open {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 16px;
+    gap: 4px;
+    box-shadow: var(--shadow-md);
+  }
+  .nav-links.open > li > a,
+  .nav-links.open > li > button { width: 100%; justify-content: flex-start; }
+  .dropdown { position: static; box-shadow: none; border: none; padding-left: 16px; }
+  .feature-cards { grid-template-columns: 1fr; }
+  .news-grid { grid-template-columns: 1fr; }
+  .tiles-grid { grid-template-columns: 1fr; }
+  .feature-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+  .footer-bottom { flex-direction: column; text-align: center; }
+  .hero { padding: 60px 0 56px; }
+  .section { padding: 56px 0; }
+  .cta-banner { padding: 40px 24px; }
+  .utility-bar .container { justify-content: center; gap: 14px; }
+  .utility-bar .container a:not(.highlight) { display: none; }
+  .utility-bar .divider { display: none; }
+  .download-group { flex-direction: column; }
+  .dl-btn { width: 100%; }
+  .dl-btn.soon::after { top: 6px; right: 8px; }
+}
+
+/* ============ ANIMATIONS ============ */
+.fade-up {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+</style>
+</head>
+<body>
+
+<!-- ====== UTILITY BAR ====== -->
+<div class="utility-bar">
+  <div class="container">
+    <a href="#download" class="highlight">
+      <i class="fa-solid fa-download"></i>
+      Download for Windows
+    </a>
+    <span class="divider">|</span>
+    <a href="#">
+      <i class="fa-solid fa-globe"></i>
+      Philippines (English)
+    </a>
+    <span class="divider">|</span>
+    <a href="#">
+      <i class="fa-solid fa-circle-question"></i>
+      Help &amp; Support
+    </a>
+  </div>
+</div>
+
+<!-- ====== NAVIGATION ====== -->
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <a href="#" class="logo">
+      <div class="logo-mark">P</div>
+      Pinch<span>Edu</span>
+    </a>
+
+    <ul class="nav-links" id="navLinks">
+      <li class="has-dropdown">
+        <button>
+          Products
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <div class="dropdown">
+          <a href="#download">
+            <span>
+              <svg class="win11-icon" viewBox="0 0 88 88" aria-hidden="true" focusable="false">
+                <rect x="0" y="0" width="40" height="40"/>
+                <rect x="48" y="0" width="40" height="40"/>
+                <rect x="0" y="48" width="40" height="40"/>
+                <rect x="48" y="48" width="40" height="40"/>
+              </svg>
+              E-Class Record — Windows
+            </span>
+            <span class="badge">Available</span>
+          </a>
+          <a href="#">
+            <span><i class="fa-brands fa-apple"></i> E-Class Record — macOS</span>
+            <span class="badge muted">Soon</span>
+          </a>
+          <a href="#">
+            <span><i class="fa-solid fa-chalkboard-user"></i> Classroom</span>
+            <span class="badge muted">Soon</span>
+          </a>
+          <a href="#">
+            <span><i class="fa-solid fa-clipboard-check"></i> Assessments</span>
+            <span class="badge muted">Soon</span>
+          </a>
+        </div>
+      </li>
+      <li><a href="#download">Download</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#">For Teachers</a></li>
+      <li><a href="#">For Schools</a></li>
+      <li><a href="#">Resources</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <button class="search-toggle" aria-label="Search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+      <a href="#download" class="btn btn-primary">
+        <i class="fa-solid fa-download"></i>
+        Download Free
+      </a>
+      <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ====== HERO ====== -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        Available now for Windows · macOS coming soon
+      </div>
+      <h1>Meet your new <em>e-Class Record.</em><br>Built for Filipino teachers.</h1>
+      <p>A desktop app for managing learners, activities, scores, term grades, and Excel ECR templates — with automatic grade computation and one-click class-record packaging.</p>
+      <div class="download-group" id="download">
+        <a href="Pinch_EClass_Record_Setup.exe" class="dl-btn">
+          <span class="dl-icon">
+            <svg class="win11-icon" viewBox="0 0 88 88" aria-hidden="true" focusable="false">
+              <rect x="0" y="0" width="40" height="40"/>
+              <rect x="48" y="0" width="40" height="40"/>
+              <rect x="0" y="48" width="40" height="40"/>
+              <rect x="48" y="48" width="40" height="40"/>
+            </svg>
+          </span>
+          <span class="dl-text"><small>Download for</small>Windows 10 / 11</span>
+        </a>
+        <a href="#" class="dl-btn soon" aria-disabled="true" tabindex="-1">
+          <span class="dl-icon"><i class="fa-brands fa-apple"></i></span>
+          <span class="dl-text"><small>Coming soon for</small>macOS</span>
+        </a>
+      </div>
+      <div class="hero-meta">
+        <span><strong>Free</strong>for teachers</span>
+        <span><strong>v1.0.0</strong>Windows available now</span>
+        <span><strong>Offline</strong>no internet required</span>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-image-wrapper">
+        <img src="teacher-hero.jpg"
+             alt="A teacher smiling in front of a classroom chalkboard, holding a book"
+             loading="eager">
+        <div class="hero-image-badge">
+          <i class="fa-solid fa-circle-check"></i>
+          Made for Filipino classrooms
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== FLAGSHIP: PINCH E-CLASS RECORD ====== -->
+<section class="section flagship">
+  <div class="container">
+    <div class="flagship-grid">
+      <div class="flagship-content fade-up">
+        <span class="eyebrow">PinchEdu for Teachers</span>
+        <h2>Pinch E-Class Record — desktop app</h2>
+        <p>Enter your learners' activity scores once, and Pinch E-Class Record computes component percentages, term grades, and the final grade automatically — then fills your Excel ECR template and packages everything into a single class-record file.</p>
+
+        <div class="feature-grid">
+          <div class="feature-item">Per-activity scoring — Written Works, Performance Tasks &amp; Exam</div>
+          <div class="feature-item">Term 1, 2, and 3 computed separately, plus Final Grade</div>
+          <div class="feature-item">Fills Excel ECR templates, merged cells handled correctly</div>
+          <div class="feature-item">Import learners from 6 file formats in one click</div>
+          <div class="feature-item">Save complete class records as portable <code>.clrx</code> files</div>
+          <div class="feature-item">Generated ECR Excel embedded inside every class record</div>
+          <div class="feature-item">Local SQLite storage — no internet connection required</div>
+          <div class="feature-item">Learner management with LRN, name, sex, and sorting</div>
+        </div>
+
+        <div class="download-group">
+          <a href="Pinch_EClass_Record_Setup.exe" class="dl-btn">
+            <span class="dl-icon">
+              <svg class="win11-icon" viewBox="0 0 88 88" aria-hidden="true" focusable="false">
+                <rect x="0" y="0" width="40" height="40"/>
+                <rect x="48" y="0" width="40" height="40"/>
+                <rect x="0" y="48" width="40" height="40"/>
+                <rect x="48" y="48" width="40" height="40"/>
+              </svg>
+            </span>
+            <span class="dl-text"><small>Download for</small>Windows (.exe)</span>
+          </a>
+          <a href="#" class="dl-btn soon" aria-disabled="true" tabindex="-1">
+            <span class="dl-icon"><i class="fa-brands fa-apple"></i></span>
+            <span class="dl-text"><small>Coming soon for</small>macOS</span>
+          </a>
+        </div>
+
+        <div class="flagship-meta">
+          <span><strong>Free</strong>for all teachers</span>
+          <span><strong>v1.0.0</strong>Windows available now</span>
+          <span><strong>Offline</strong>local-first design</span>
+        </div>
+      </div>
+
+      <div class="flagship-content fade-up" style="display:flex; flex-direction:column; gap:20px;">
+        <div class="app-preview">
+          <div class="app-titlebar">
+            <span class="app-dot red"></span>
+            <span class="app-dot yellow"></span>
+            <span class="app-dot green"></span>
+            <span class="app-title">Term 1 — Grade 10 - Rizal · Written Works</span>
+          </div>
+          <div class="app-body">
+            <div class="app-toolbar">
+              <span class="app-chip active">Written Works</span>
+              <span class="app-chip">Performance Tasks</span>
+              <span class="app-chip">Exam</span>
+            </div>
+            <table class="app-table">
+              <thead>
+                <tr>
+                  <th>#</th><th>Learner</th><th>WW1</th><th>WW2</th><th>WW3</th><th>Total</th><th>%</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td class="name">Abad, Maria</td><td>95</td><td>92</td><td>88</td><td>275/300</td><td class="grade">91.7</td></tr>
+                <tr><td>2</td><td class="name">Bautista, Jose</td><td>85</td><td>88</td><td>90</td><td>263/300</td><td class="grade">87.7</td></tr>
+                <tr><td>3</td><td class="name">Cruz, Ana</td><td>80</td><td>82</td><td>78</td><td>240/300</td><td class="grade">80.0</td></tr>
+                <tr><td>4</td><td class="name">Dela Cruz, Pedro</td><td>70</td><td>72</td><td>68</td><td>210/300</td><td class="grade">70.0</td></tr>
+                <tr><td>5</td><td class="name">Espino, Rosa</td><td>96</td><td>94</td><td>93</td><td>283/300</td><td class="grade">94.3</td></tr>
+              </tbody>
+            </table>
+            <div class="app-statusbar">
+              <span><i class="fa-solid fa-keyboard"></i> Activity-level entry</span>
+              <span><i class="fa-solid fa-circle-check"></i> Components auto-weighted</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== FULL 11-FEATURE GRID ====== -->
+<section class="section section-alt" id="features">
+  <div class="container">
+    <div class="section-header fade-up">
+      <h2>Everything Pinch E-Class Record does</h2>
+      <p>Eleven built-in capabilities — from activity-level scoring to portable class-record packaging.</p>
+    </div>
+    <div class="feature-cards">
+
+      <article class="feature-card fade-up">
+        <span class="fc-num">01</span>
+        <h3><i class="fa-solid fa-square-check"></i> Per-Activity Scoring</h3>
+        <p>Record individual student scores for activities and organize them by component — <strong>Written Works</strong>, <strong>Performance Tasks</strong>, and <strong>Exam</strong>. Component percentages are calculated automatically.</p>
+      </article>
+
+      <article class="feature-card fade-up">
+        <span class="fc-num">02</span>
+        <h3><i class="fa-solid fa-calculator"></i> Per-Term Grade Computation</h3>
+        <p>Each term is calculated separately. Supports <strong>1st, 2nd, and 3rd Terms</strong>, with the <strong>Final Grade</strong> derived from whichever term grades are available.</p>
+      </article>
+
+      <article class="feature-card fade-up">
+        <span class="fc-num">03</span>
+        <h3><i class="fa-solid fa-file-excel"></i> Excel ECR Template Filling</h3>
+        <p>Fills your selected Excel template and term sheet while preserving the original workbook structure — including <strong>merged cells</strong>, which are written to the correct merge anchor.</p>
+      </article>
+
+      <article class="feature-card fade-up">
+        <span class="fc-num">04</span>
+        <h3><i class="fa-solid fa-users"></i> Learner Management</h3>
+        <p>Manage students with <strong>LRN, Last Name, First Name, Middle Name, and Sex</strong>. The interface provides built-in sorting and student deletion.</p>
+      </article>
+
+      <article class="feature-card fade-up">
+        <span class="fc-num">05</span>
+        <h3><i class="fa-solid fa-file-import"></i> Student Import</h3>
+        <p>Import learners from supported files: <code>.xlsx</code><code>.xlsm</code><code>.csv</code><code>.tsv</code><code>.txt</code><code>.json</code>. The importer detects LRN, Last Name, and First Name.</p>
+      </article>
+
+      <article class="feature-card fade-up">
+        <span class="fc-num">06</span>
+        <h3><i class="fa-solid fa-folder-open"></i> Class Record Management</h3>
+        <p>Save, reopen, and manage class records as portable <code>.clrx</code> Class Record files — one file per section, easy to back up and share.</p>
+      </article>
+
+      <article class="feature-card fade-up">
+        <span class="fc-num">07</span>
+        <h3><i class="fa-solid fa-box-archive"></i> Embedded ECR Excel</h3>
+        <p>When a class record is saved, the generated ECR Excel file is packaged <em>inside</em> the <code>.clrx</code> file — so your data and output stay together.</p>
+      </article>
+
+      <article class="feature-card fade-up">
+        <span class="fc-num">08</span>
+        <h3><i class="fa-solid fa-table-list"></i> Summary View</h3>
+        <p>A dedicated Summary tab shows every learner's <strong>Name, Term 1, Term 2, Term 3, and Final Grade</strong> in a single view.</p>
+      </article>
+
+      <article class="feature-card fade-up">
+        <span class="fc-num">09</span>
+        <h3><i class="fa-solid fa-file-lines"></i> Template Selection</h3>
+        <p>Choose Excel templates manually, or let the application auto-detect templates from its built-in template directories.</p>
+      </article>
+
+      <article class="feature-card fade-up">
+        <span class="fc-num">10</span>
+        <h3><i class="fa-solid fa-database"></i> Local Data Storage</h3>
+        <p>Class and activity data is stored in a local <strong>SQLite database</strong> inside your user profile — the app folder itself doesn't need to be writable.</p>
+      </article>
+
+      <article class="feature-card fade-up">
+        <span class="fc-num">11</span>
+        <h3><i class="fa-solid fa-window-restore"></i> Splash Screen &amp; GUI</h3>
+        <p>A clean graphical interface with a startup splash screen. The main window stays hidden while the splash displays, then appears when everything is ready.</p>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ====== SPOTLIGHT 1 — Excel template filling ====== -->
+<section class="section">
+  <div class="container">
+    <div class="spotlight fade-up">
+      <div class="spotlight-visual" style="background: linear-gradient(135deg, #0f6c5c, #148f7a);">
+        <div class="spotlight-visual-inner">
+          <div class="spotlight-icon"><i class="fa-solid fa-file-zipper"></i></div>
+          <div class="big-number">.clrx</div>
+          <div class="big-label">One file. Every term, every learner, every Excel output.</div>
+        </div>
+      </div>
+      <div class="spotlight-content">
+        <h2>Keeps your Excel ECR intact — even merged cells</h2>
+        <p>Pinch E-Class Record doesn't generate its own spreadsheet format. It fills <em>your</em> template — the one your school already uses — and preserves the workbook structure exactly as it is.</p>
+        <ul class="check-list">
+          <li>Fills the selected Excel template and term sheet directly</li>
+          <li>Handles merged cells by writing to the appropriate merge anchor</li>
+          <li>Preserves original formulas, formatting, and layout</li>
+          <li>Generated ECR Excel is embedded inside the <code>.clrx</code> class record</li>
+        </ul>
+        <a href="#download" class="btn btn-primary">
+          <i class="fa-solid fa-download"></i>
+          Download the app
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== SPOTLIGHT 2 — Offline + local storage ====== -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="spotlight reverse fade-up">
+      <div class="spotlight-visual" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
+        <div class="spotlight-visual-inner">
+          <div class="spotlight-icon" style="color: #e8a838;"><i class="fa-solid fa-laptop-code"></i></div>
+          <div class="big-number" style="color: #e8a838;">Local</div>
+          <div class="big-label">Runs on your PC. Stores in your user profile.</div>
+        </div>
+      </div>
+      <div class="spotlight-content">
+        <h2>No internet. No accounts. No cloud.</h2>
+        <p>Pinch E-Class Record is a native desktop application. It runs entirely on your machine and stores its data in your own user profile — so slow connections and remote school assignments never interrupt your work.</p>
+        <ul class="check-list">
+          <li>Available now on Windows 10 and 11</li>
+          <li>macOS build coming soon</li>
+          <li>Data stored in a local SQLite database in your user profile</li>
+          <li>App folder does not need to be writable</li>
+          <li>Works fully offline — nothing leaves your device</li>
+        </ul>
+        <a href="#" class="btn btn-outline">
+          <i class="fa-solid fa-shield-halved"></i>
+          Read the privacy policy
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== PRODUCT TILES ====== -->
+<section class="section">
+  <div class="container">
+    <div class="section-header fade-up">
+      <h2>What's available today</h2>
+      <p>Pinch E-Class Record for Windows is live now. macOS is on the way, and more classroom tools are in development.</p>
+    </div>
+    <div class="tiles-grid">
+      <article class="tile featured fade-up">
+        <span class="tile-badge available">
+          <i class="fa-solid fa-circle"></i> Available
+        </span>
+        <div class="tile-icon teal"><i class="fa-solid fa-chart-line"></i></div>
+        <h3>Pinch E-Class Record — Windows</h3>
+        <p>Desktop app that automates per-activity scoring, term grade computation, Excel ECR template filling, and class-record packaging.</p>
+        <a href="Pinch_EClass_Record_Setup.exe" class="tile-link">
+          Download now <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </article>
+      <article class="tile fade-up">
+        <span class="tile-badge soon">
+          <i class="fa-solid fa-clock"></i> Soon
+        </span>
+        <div class="tile-icon purple"><i class="fa-brands fa-apple"></i></div>
+        <h3>Pinch E-Class Record — macOS</h3>
+        <p>The same e-Class Record experience, rebuilt natively for macOS. Join the notify list to be alerted at launch.</p>
+        <a href="#" class="tile-link">
+          Notify me <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </article>
+      <article class="tile fade-up">
+        <span class="tile-badge soon">
+          <i class="fa-solid fa-clock"></i> Soon
+        </span>
+        <div class="tile-icon amber"><i class="fa-solid fa-book"></i></div>
+        <h3>PinchEdu Classroom</h3>
+        <p>A learning management system with digitized textbooks, curriculum-aligned modules, and offline access for K–12.</p>
+        <a href="#" class="tile-link">
+          Join waitlist <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ====== NEWS ====== -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-header fade-up">
+      <h2>Latest from PinchEdu</h2>
+      <p>News, product updates, and resources for the Philippine education community.</p>
+    </div>
+    <div class="news-grid">
+      <article class="news-card fade-up">
+        <div class="news-card-image" style="background: linear-gradient(135deg, #0f6c5c, #148f7a);">
+          <i class="fa-solid fa-download"></i>
+        </div>
+        <div class="news-card-body">
+          <span class="news-tag product">Product</span>
+          <h3>Pinch E-Class Record v1.0.0 released for Windows</h3>
+          <p>Initial public release. Per-activity scoring, per-term grade computation, Excel ECR template filling, and portable <code>.clrx</code> class records.</p>
+          <div class="news-date">
+            <i class="fa-regular fa-circle-check"></i> Now available
+          </div>
+        </div>
+      </article>
+      <article class="news-card fade-up">
+        <div class="news-card-image" style="background: linear-gradient(135deg, #4a3f6b, #2c2547);">
+          <i class="fa-brands fa-apple"></i>
+        </div>
+        <div class="news-card-body">
+          <span class="news-tag soon">Coming soon</span>
+          <h3>macOS version in development</h3>
+          <p>A native macOS build of Pinch E-Class Record is underway. Expect the same term-grade computation, template filling, and <code>.clrx</code> class records.</p>
+          <div class="news-date">
+            <i class="fa-regular fa-clock"></i> Announced
+          </div>
+        </div>
+      </article>
+      <article class="news-card fade-up">
+        <div class="news-card-image" style="background: linear-gradient(135deg, #2563a8, #3a7d2a);">
+          <i class="fa-solid fa-book-bookmark"></i>
+        </div>
+        <div class="news-card-body">
+          <span class="news-tag policy">Documentation</span>
+          <h3>User guide now available</h3>
+          <p>Step-by-step walkthrough covering learner import, activity setup, term grade computation, and template selection.</p>
+          <div class="news-date">
+            <i class="fa-regular fa-file-lines"></i> Read online
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ====== CTA BANNER ====== -->
+<section class="section">
+  <div class="container">
+    <div class="cta-banner fade-up">
+      <h2>Download Pinch E-Class Record — free</h2>
+      <p>A desktop app for managing learners, activities, scores, term grades, and Excel ECR templates. No sign-up required. Works offline.</p>
+      <div class="download-group">
+        <a href="Pinch_EClass_Record_Setup.exe" class="dl-btn light">
+          <span class="dl-icon">
+            <svg class="win11-icon" viewBox="0 0 88 88" aria-hidden="true" focusable="false">
+              <rect x="0" y="0" width="40" height="40"/>
+              <rect x="48" y="0" width="40" height="40"/>
+              <rect x="0" y="48" width="40" height="40"/>
+              <rect x="48" y="48" width="40" height="40"/>
+            </svg>
+          </span>
+          <span class="dl-text"><small>Download for</small>Windows 10 / 11</span>
+        </a>
+        <a href="#" class="dl-btn light soon" aria-disabled="true" tabindex="-1">
+          <span class="dl-icon"><i class="fa-brands fa-apple"></i></span>
+          <span class="dl-text"><small>Coming soon for</small>macOS</span>
+        </a>
+      </div>
+      <div class="cta-note">
+        <i class="fa-solid fa-circle-info"></i>
+        macOS version is in development — check back soon.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== FOOTER ====== -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="logo">
+          <div class="logo-mark">P</div>
+          Pinch<span>Edu</span>
+        </a>
+        <p>Modern digital learning tools built for Philippine classrooms. Curriculum-aligned, offline-ready, and designed with teachers.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+          <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Products</h4>
+        <ul>
+          <li>
+            <a href="#download">
+              <i class="fa-solid fa-chevron-right"></i>
+              Pinch E-Class Record (Windows)
+            </a>
+          </li>
+          <li>
+            <span class="soon-label">
+              <i class="fa-solid fa-chevron-right"></i>
+              Pinch E-Class Record (macOS) — soon
+            </span>
+          </li>
+          <li>
+            <a href="#">
+              <i class="fa-solid fa-chevron-right"></i>
+              Classroom (soon)
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <i class="fa-solid fa-chevron-right"></i>
+              Assessments (soon)
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Solutions</h4>
+        <ul>
+          <li><a href="#"><i class="fa-solid fa-chevron-right"></i> For Public Schools</a></li>
+          <li><a href="#"><i class="fa-solid fa-chevron-right"></i> For Private Schools</a></li>
+          <li><a href="#"><i class="fa-solid fa-chevron-right"></i> For DepEd Divisions</a></li>
+          <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Enterprise</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Help Center</a></li>
+          <li><a href="#"><i class="fa-solid fa-chevron-right"></i> e-Class Record User Guide</a></li>
+          <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Video Tutorials</a></li>
+          <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Release Notes</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#"><i class="fa-solid fa-chevron-right"></i> About Us</a></li>
+          <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Careers</a></li>
+          <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Press</a></li>
+          <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Privacy Policy</a></li>
+          <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 PinchEdu Technologies Inc. All rights reserved.</div>
+      <div class="footer-bottom-links">
+        <a href="#">Terms of Use</a>
+        <a href="#">Privacy &amp; Cookies</a>
+        <a href="#">Accessibility</a>
+        <a href="#">Sitemap</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   PINCHEDU — SITE FUNCTIONS
+   ============================================================ */
+
+/* ====== 1. STICKY NAV SHADOW ====== */
+(function initStickyNav() {
+  const navbar = document.getElementById('navbar');
+  if (!navbar) return;
+  const onScroll = () => navbar.classList.toggle('scrolled', window.scrollY > 10);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+
+/* ====== 2. MOBILE NAV TOGGLE ====== */
+(function initMobileNav() {
+  const mobileToggle = document.getElementById('mobileToggle');
+  const navLinks = document.getElementById('navLinks');
+  if (!mobileToggle || !navLinks) return;
+
+  const ICON_OPEN = '<i class="fa-solid fa-bars"></i>';
+  const ICON_CLOSE = '<i class="fa-solid fa-xmark"></i>';
+
+  mobileToggle.addEventListener('click', () => {
+    const isOpen = navLinks.classList.toggle('open');
+    mobileToggle.innerHTML = isOpen ? ICON_CLOSE : ICON_OPEN;
+    mobileToggle.setAttribute('aria-expanded', String(isOpen));
+  });
+
+  navLinks.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      navLinks.classList.remove('open');
+      mobileToggle.innerHTML = ICON_OPEN;
+      mobileToggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && navLinks.classList.contains('open')) {
+      navLinks.classList.remove('open');
+      mobileToggle.innerHTML = ICON_OPEN;
+      mobileToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  document.addEventListener('click', e => {
+    if (!navLinks.classList.contains('open')) return;
+    if (navLinks.contains(e.target) || mobileToggle.contains(e.target)) return;
+    navLinks.classList.remove('open');
+    mobileToggle.innerHTML = ICON_OPEN;
+    mobileToggle.setAttribute('aria-expanded', 'false');
+  });
+})();
+
+/* ====== 3. SCROLL REVEAL (fade-up) ====== */
+(function initScrollReveal() {
+  const elements = document.querySelectorAll('.fade-up');
+  if (!elements.length) return;
+
+  if (!('IntersectionObserver' in window)) {
+    elements.forEach(el => el.classList.add('visible'));
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  elements.forEach(el => observer.observe(el));
+})();
+
+/* ====== 4. SMOOTH SCROLL FOR #download ====== */
+(function initSmoothDownload() {
+  document.querySelectorAll('a[href="#download"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.getElementById('download');
+      if (!target) return;
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+})();
+
+/* ====== 5. PREVENT DEFAULT FOR PLACEHOLDER LINKS ====== */
+(function initPlaceholderLinks() {
+  document.querySelectorAll('a[href="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      if (a.classList.contains('soon')) {
+        e.preventDefault();
+        return;
+      }
+      e.preventDefault();
+    });
+  });
+})();
+
+/* ====== 6. GUARD "SOON" BUTTONS ====== */
+(function initSoonButtons() {
+  document.querySelectorAll('.dl-btn.soon').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+    btn.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+      }
+    });
+  });
+})();
+
+/* ====== 7. ACTIVE NAV LINK HIGHLIGHT ON SCROLL ====== */
+(function initActiveNavHighlight() {
+  const sections = [
+    { id: 'features', href: '#features' },
+    { id: 'download', href: '#download' }
+  ];
+  const navAnchors = document.querySelectorAll('.nav-links > li > a');
+
+  if (!('IntersectionObserver' in window) || !sections.length) return;
+
+  const setActive = (href) => {
+    navAnchors.forEach(a => {
+      const isActive = a.getAttribute('href') === href;
+      a.style.background = isActive ? 'var(--brand-light)' : '';
+      a.style.color = isActive ? 'var(--brand-primary)' : '';
+    });
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const match = sections.find(s => s.id === entry.target.id);
+        if (match) setActive(match.href);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  sections.forEach(s => {
+    const el = document.getElementById(s.id);
+    if (el) observer.observe(el);
+  });
+})();
+
+/* ====== 8. COPY-TO-CLIPBOARD FOR FILE EXTENSIONS ====== */
+(function initCodeCopy() {
+  document.querySelectorAll('.feature-card code').forEach(code => {
+    code.style.cursor = 'pointer';
+    code.title = 'Click to copy';
+    code.addEventListener('click', () => {
+      const text = code.textContent.trim();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          const original = code.textContent;
+          code.textContent = '✓ copied';
+          setTimeout(() => { code.textContent = original; }, 900);
+        });
+      }
+    });
+  });
+})();
+
+/* ====== 9. IMAGE FALLBACK (if hero photo missing) ====== */
+(function initImageFallback() {
+  const heroImg = document.querySelector('.hero-image-wrapper img');
+  if (!heroImg) return;
+  heroImg.addEventListener('error', () => {
+    heroImg.style.display = 'none';
+    const wrapper = heroImg.parentElement;
+    wrapper.style.background = 'linear-gradient(135deg, #0f6c5c, #148f7a)';
+    wrapper.insertAdjacentHTML('beforeend', `
+      <div style="position:absolute;inset:0;display:grid;place-items:center;color:white;text-align:center;padding:32px;">
+        <div>
+          <div style="font-size:3rem;color:#e8a838;margin-bottom:12px;">
+            <i class="fa-solid fa-chalkboard-user"></i>
+          </div>
+          <div style="font-size:1.25rem;font-weight:600;">Built for Filipino teachers</div>
+        </div>
+      </div>
+    `);
+  });
+})();
+
+/* ====== 10. LOG INITIALIZATION ====== */
+console.log(
+  '%cPinchEdu%c — all functions loaded ✓',
+  'color:#0f6c5c;font-weight:700;font-size:14px;',
+  'color:#737373;font-size:12px;'
+);
+</script>
+</body>
+</html>
