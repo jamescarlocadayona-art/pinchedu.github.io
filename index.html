@@ -2,18 +2,23 @@
 <html lang="en-PH">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f6c5c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Pinch E-Class Record is a Windows-based e-Class Record system for managing learners, activities, scores, term grades, class records, and Excel ECR templates. macOS version coming soon.">
 <title>Pinch E-Class Record — Windows-based ECR for Filipino Teachers</title>
-<meta name="description" content="Pinch E-Class Record is a Windows-based e-Class Record system for managing learners, activities, scores, term grades, class records, and Excel ECR templates with automatic grade computation and class-record packaging. macOS version coming soon.">
 
-<!-- ============ FONT AWESOME ============ -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
       integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
       crossorigin="anonymous" referrerpolicy="no-referrer">
 
 <style>
-/* ============ RESET & BASE ============ */
+/* =========================================================
+   RESET & BASE
+   ========================================================= */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 :root {
   --brand-primary: #0f6c5c;
   --brand-primary-dark: #0a4f42;
@@ -30,22 +35,51 @@
   --shadow-md: 0 6px 20px rgba(0,0,0,.10);
   --shadow-lg: 0 20px 60px rgba(0,0,0,.18);
   --transition: .25s ease;
+
+  /* Fluid spacing tokens */
+  --space-section: clamp(48px, 8vw, 80px);
+  --space-gutter: clamp(16px, 3vw, 24px);
+  --space-grid: clamp(16px, 2.5vw, 24px);
+
+  /* Fluid type */
+  --fs-hero: clamp(1.75rem, 4.5vw + 1rem, 3rem);
+  --fs-h2: clamp(1.5rem, 2.5vw + .75rem, 2.5rem);
+  --fs-h3: clamp(1rem, .5vw + .9rem, 1.125rem);
+  --fs-body: clamp(.9375rem, .25vw + .9rem, 1.0625rem);
 }
-html { scroll-behavior: smooth; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   color: var(--text-primary);
   line-height: 1.6;
   background: var(--white);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  min-width: 320px;
 }
-img { max-width: 100%; display: block; }
+
+img, svg, video { max-width: 100%; height: auto; display: block; }
 a { color: inherit; text-decoration: none; }
 ul { list-style: none; }
-button { font-family: inherit; cursor: pointer; border: none; background: none; }
-.container { max-width: var(--max-width); margin: 0 auto; padding: 0 24px; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, textarea, select { font-family: inherit; }
 
-/* ============ WINDOWS 11 ICON (inline SVG) ============ */
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding-left: var(--space-gutter);
+  padding-right: var(--space-gutter);
+}
+
+/* Windows 11 inline SVG icon */
 .win11-icon {
   display: inline-block;
   width: 1em;
@@ -56,35 +90,42 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .win11-icon.blue { fill: #0078D4; }
 
-/* ============ UTILITY BAR ============ */
+/* =========================================================
+   UTILITY BAR
+   ========================================================= */
 .utility-bar {
   background: var(--brand-primary-dark);
   color: rgba(255,255,255,.85);
-  font-size: .8125rem;
+  font-size: clamp(.75rem, .2vw + .7rem, .8125rem);
   padding: 6px 0;
 }
 .utility-bar .container {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 24px;
+  gap: clamp(12px, 2vw, 24px);
+  flex-wrap: wrap;
 }
 .utility-bar a {
   transition: color var(--transition);
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
 }
 .utility-bar a:hover { color: var(--white); }
 .utility-bar .divider { opacity: .3; }
 .utility-bar .highlight { color: var(--brand-accent); font-weight: 600; }
 
-/* ============ NAVIGATION ============ */
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
 .navbar {
   position: sticky;
   top: 0;
   z-index: 1000;
   background: rgba(255,255,255,.96);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   transition: box-shadow var(--transition);
@@ -94,34 +135,39 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 64px;
+  height: clamp(56px, 6vw, 64px);
+  gap: 16px;
 }
 .logo {
   display: flex;
   align-items: center;
   gap: 10px;
   font-weight: 700;
-  font-size: 1.35rem;
+  font-size: clamp(1.15rem, 1.5vw, 1.35rem);
   letter-spacing: -.02em;
   color: var(--brand-primary);
+  flex-shrink: 0;
 }
 .logo-mark {
-  width: 32px;
-  height: 32px;
+  width: clamp(28px, 3vw, 32px);
+  height: clamp(28px, 3vw, 32px);
   background: var(--brand-primary);
   border-radius: 6px;
   display: grid;
   place-items: center;
   color: var(--white);
-  font-size: 1rem;
+  font-size: clamp(.875rem, 1vw, 1rem);
   font-weight: 800;
+  flex-shrink: 0;
 }
 .logo span { color: var(--text-primary); }
 
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  flex: 1;
+  justify-content: center;
 }
 .nav-links > li { position: relative; }
 .nav-links > li > a,
@@ -129,11 +175,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
+  padding: 8px 12px;
   font-size: .9375rem;
   color: var(--text-secondary);
   border-radius: var(--radius);
   transition: background var(--transition), color var(--transition);
+  white-space: nowrap;
 }
 .nav-links > li > a:hover,
 .nav-links > li > button:hover {
@@ -153,7 +200,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   position: absolute;
   top: 100%;
   left: 0;
-  min-width: 300px;
+  min-width: 280px;
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -206,7 +253,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-shrink: 0;
 }
 .search-toggle {
   width: 40px;
@@ -216,25 +264,26 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   place-items: center;
   transition: background var(--transition);
   color: var(--text-secondary);
+  min-width: 44px;
+  min-height: 44px;
 }
 .search-toggle:hover { background: var(--brand-light); }
+
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 22px;
+  padding: 10px 20px;
   border-radius: var(--radius);
   font-size: .9375rem;
   font-weight: 600;
   transition: all var(--transition);
   white-space: nowrap;
+  min-height: 44px;
 }
 .btn i { font-size: .875rem; }
-.btn-primary {
-  background: var(--brand-primary);
-  color: var(--white);
-}
+.btn-primary { background: var(--brand-primary); color: var(--white); }
 .btn-primary:hover {
   background: var(--brand-primary-dark);
   transform: translateY(-1px);
@@ -246,17 +295,20 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   background: transparent;
 }
 .btn-outline:hover { background: var(--brand-light); }
-.btn-lg { padding: 14px 32px; font-size: 1rem; }
-.btn-accent {
-  background: var(--brand-accent);
+
+.mobile-toggle {
+  display: none;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  place-items: center;
   color: var(--text-primary);
 }
-.btn-accent:hover {
-  background: #d4952e;
-  transform: translateY(-1px);
-}
+.mobile-toggle:hover { background: var(--brand-light); }
 
-/* ============ DOWNLOAD BUTTONS ============ */
+/* =========================================================
+   DOWNLOAD BUTTONS
+   ========================================================= */
 .download-group {
   display: flex;
   gap: 12px;
@@ -267,7 +319,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   display: inline-flex;
   align-items: center;
   gap: 14px;
-  padding: 14px 26px;
+  padding: 14px 24px;
   border-radius: var(--radius);
   background: var(--text-primary);
   color: var(--white);
@@ -276,6 +328,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   transition: all var(--transition);
   border: 1.5px solid var(--text-primary);
   position: relative;
+  min-height: 56px;
+  flex: 0 1 auto;
 }
 .dl-btn:hover {
   background: #000;
@@ -290,14 +344,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   justify-content: center;
   width: 32px;
   height: 32px;
+  flex-shrink: 0;
 }
-.dl-btn .dl-icon .win11-icon {
-  width: 1.4rem;
-  height: 1.4rem;
-}
-.dl-btn .dl-icon i {
-  font-size: 1.75rem;
-}
+.dl-btn .dl-icon .win11-icon { width: 1.4rem; height: 1.4rem; }
+.dl-btn .dl-icon i { font-size: 1.75rem; }
 .dl-btn .dl-text {
   display: flex;
   flex-direction: column;
@@ -312,7 +362,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   letter-spacing: .05em;
 }
 
-/* ---- Coming Soon (macOS) variant ---- */
 .dl-btn.soon {
   background: rgba(0,0,0,.05);
   border-color: rgba(0,0,0,.15);
@@ -320,7 +369,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   cursor: not-allowed;
 }
 .dl-btn.soon .dl-icon { opacity: .6; }
-.dl-btn.soon .dl-text small { opacity: .8; }
 .dl-btn.soon:hover {
   background: rgba(0,0,0,.08);
   transform: translateY(-2px);
@@ -341,7 +389,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   box-shadow: 0 1px 3px rgba(0,0,0,.2);
 }
 
-/* Light-on-dark variant */
 .dl-btn.light {
   background: rgba(255,255,255,.1);
   border-color: rgba(255,255,255,.35);
@@ -357,20 +404,16 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   color: rgba(255,255,255,.65);
   cursor: not-allowed;
 }
-.dl-btn.light.soon .dl-icon { opacity: .6; }
-.dl-btn.light.soon:hover {
-  background: rgba(255,255,255,.1);
-  border-color: rgba(255,255,255,.25);
-  box-shadow: none;
-}
 
-/* ============ HERO ============ */
+/* =========================================================
+   HERO
+   ========================================================= */
 .hero {
   position: relative;
   background: linear-gradient(135deg, #0a4f42 0%, #0f6c5c 50%, #148f7a 100%);
   color: var(--white);
   overflow: hidden;
-  padding: 88px 0 80px;
+  padding: clamp(48px, 8vw, 88px) 0 clamp(40px, 6vw, 80px);
 }
 .hero::before {
   content: '';
@@ -386,7 +429,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   z-index: 2;
   display: grid;
   grid-template-columns: 1.05fr 1fr;
-  gap: 56px;
+  gap: clamp(32px, 4vw, 56px);
   align-items: center;
 }
 .hero-badge {
@@ -401,20 +444,18 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   padding: 6px 14px;
   border-radius: 99px;
   margin-bottom: 20px;
+  max-width: 100%;
 }
 .hero-content h1 {
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: var(--fs-hero);
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -.03em;
   margin-bottom: 20px;
 }
-.hero-content h1 em {
-  font-style: normal;
-  color: var(--brand-accent);
-}
+.hero-content h1 em { font-style: normal; color: var(--brand-accent); }
 .hero-content p {
-  font-size: 1.0625rem;
+  font-size: var(--fs-body);
   color: rgba(255,255,255,.88);
   max-width: 560px;
   margin-bottom: 32px;
@@ -422,7 +463,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .hero-meta {
   display: flex;
-  gap: 28px;
+  gap: clamp(16px, 2.5vw, 28px);
   flex-wrap: wrap;
   margin-top: 32px;
   padding-top: 28px;
@@ -440,8 +481,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   margin-bottom: 2px;
 }
 
-/* ============ HERO IMAGE (real photo) ============ */
-.hero-visual { position: relative; }
+/* HERO IMAGE */
+.hero-visual { position: relative; width: 100%; }
 .hero-image-wrapper {
   position: relative;
   border-radius: 12px;
@@ -458,9 +499,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   display: block;
   transition: transform 8s ease;
 }
-.hero-image-wrapper:hover img {
-  transform: scale(1.03);
-}
+.hero-image-wrapper:hover img { transform: scale(1.03); }
 .hero-image-wrapper::after {
   content: '';
   position: absolute;
@@ -483,20 +522,21 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   padding: 8px 14px;
   border-radius: 99px;
   box-shadow: var(--shadow-md);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
-}
-.hero-image-badge i {
-  color: var(--brand-primary);
-  font-size: .875rem;
+  max-width: calc(100% - 32px);
 }
 
-/* ============ APP PREVIEW MOCKUP (used in flagship section) ============ */
+/* =========================================================
+   APP PREVIEW MOCKUP
+   ========================================================= */
 .app-preview {
   background: #1e1e2e;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: var(--shadow-lg);
   border: 1px solid rgba(255,255,255,.12);
+  width: 100%;
 }
 .app-titlebar {
   display: flex;
@@ -506,7 +546,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   background: #16161f;
   border-bottom: 1px solid rgba(255,255,255,.08);
 }
-.app-dot { width: 12px; height: 12px; border-radius: 50%; }
+.app-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
 .app-dot.red { background: #ff5f57; }
 .app-dot.yellow { background: #febc2e; }
 .app-dot.green { background: #28c840; }
@@ -515,11 +555,16 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   font-size: .75rem;
   color: rgba(255,255,255,.5);
   font-family: 'Consolas', monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .app-body {
-  padding: 20px;
+  padding: clamp(14px, 2vw, 20px);
   font-family: 'Consolas', 'Courier New', monospace;
   font-size: .75rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .app-toolbar {
   display: flex;
@@ -533,6 +578,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   background: rgba(255,255,255,.08);
   color: rgba(255,255,255,.7);
   font-size: .6875rem;
+  white-space: nowrap;
 }
 .app-chip.active {
   background: var(--brand-accent);
@@ -541,6 +587,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .app-table {
   width: 100%;
+  min-width: 480px;
   border-collapse: collapse;
   font-size: .6875rem;
   color: rgba(255,255,255,.8);
@@ -554,16 +601,15 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   text-transform: uppercase;
   letter-spacing: .04em;
   font-size: .625rem;
+  white-space: nowrap;
 }
 .app-table td {
   padding: 8px 10px;
   border-bottom: 1px solid rgba(255,255,255,.05);
+  white-space: nowrap;
 }
 .app-table .name { color: var(--white); }
-.app-table .grade {
-  color: var(--brand-accent);
-  font-weight: 700;
-}
+.app-table .grade { color: var(--brand-accent); font-weight: 700; }
 .app-table .pass { color: #28c840; }
 .app-table .fail { color: #ff5f57; }
 .app-statusbar {
@@ -576,33 +622,36 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   border-top: 1px solid rgba(255,255,255,.08);
   font-size: .6875rem;
   color: rgba(255,255,255,.5);
+  flex-wrap: wrap;
 }
-.app-statusbar span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
+.app-statusbar span { display: inline-flex; align-items: center; gap: 6px; }
 
-/* ============ SECTION SHARED ============ */
-.section { padding: 80px 0; }
+/* =========================================================
+   SECTIONS
+   ========================================================= */
+.section { padding: var(--space-section) 0; }
 .section-header {
   text-align: center;
   max-width: 680px;
-  margin: 0 auto 52px;
+  margin: 0 auto clamp(32px, 5vw, 52px);
+  padding: 0 8px;
 }
 .section-header h2 {
-  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-size: var(--fs-h2);
   font-weight: 700;
   letter-spacing: -.02em;
   margin-bottom: 12px;
+  line-height: 1.2;
 }
 .section-header p {
   color: var(--text-secondary);
-  font-size: 1.0625rem;
+  font-size: var(--fs-body);
 }
 .section-alt { background: var(--brand-light); }
 
-/* ============ FLAGSHIP FEATURE ============ */
+/* =========================================================
+   FLAGSHIP
+   ========================================================= */
 .flagship {
   background: linear-gradient(180deg, #ffffff 0%, #f7fbfa 100%);
   border-top: 1px solid var(--border);
@@ -611,7 +660,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .flagship-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 64px;
+  gap: clamp(32px, 5vw, 64px);
   align-items: center;
 }
 .flagship-content .eyebrow {
@@ -627,7 +676,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   margin-bottom: 16px;
 }
 .flagship-content h2 {
-  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-size: var(--fs-h2);
   font-weight: 700;
   letter-spacing: -.02em;
   line-height: 1.2;
@@ -635,7 +684,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .flagship-content > p {
   color: var(--text-secondary);
-  font-size: 1.0625rem;
+  font-size: var(--fs-body);
   line-height: 1.75;
   margin-bottom: 24px;
 }
@@ -662,7 +711,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .flagship-meta {
   display: flex;
-  gap: 28px;
+  gap: clamp(16px, 2.5vw, 28px);
   flex-wrap: wrap;
   margin-top: 28px;
   padding-top: 24px;
@@ -677,17 +726,19 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   font-weight: 600;
 }
 
-/* ============ FULL FEATURE GRID ============ */
+/* =========================================================
+   FEATURE CARDS
+   ========================================================= */
 .feature-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: var(--space-grid);
 }
 .feature-card {
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 28px 26px;
+  padding: clamp(20px, 2.5vw, 28px) clamp(18px, 2.2vw, 26px);
   transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
 }
 .feature-card:hover {
@@ -708,7 +759,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   letter-spacing: .04em;
 }
 .feature-card h3 {
-  font-size: 1.0625rem;
+  font-size: var(--fs-h3);
   font-weight: 600;
   margin-bottom: 8px;
   line-height: 1.35;
@@ -739,11 +790,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   margin: 2px 2px 0 0;
 }
 
-/* ============ SPOTLIGHT ============ */
+/* =========================================================
+   SPOTLIGHT
+   ========================================================= */
 .spotlight {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 64px;
+  gap: clamp(32px, 5vw, 64px);
   align-items: center;
 }
 .spotlight.reverse { direction: rtl; }
@@ -760,34 +813,34 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .spotlight-visual-inner {
   text-align: center;
   color: var(--white);
-  padding: 32px;
+  padding: clamp(20px, 4vw, 32px);
 }
 .spotlight-visual-inner .spotlight-icon {
-  font-size: 3rem;
+  font-size: clamp(2rem, 5vw, 3rem);
   color: var(--brand-accent);
   margin-bottom: 12px;
   opacity: .9;
 }
 .spotlight-visual-inner .big-number {
-  font-size: 4.5rem;
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
   font-weight: 800;
   line-height: 1;
   color: var(--brand-accent);
 }
 .spotlight-visual-inner .big-label {
-  font-size: 1rem;
+  font-size: clamp(.875rem, 1.5vw, 1rem);
   opacity: .85;
   margin-top: 8px;
 }
 .spotlight-content h2 {
-  font-size: clamp(1.5rem, 2.5vw, 2.125rem);
+  font-size: clamp(1.375rem, 2vw + .75rem, 2.125rem);
   font-weight: 700;
   letter-spacing: -.02em;
   margin-bottom: 16px;
 }
 .spotlight-content p {
   color: var(--text-secondary);
-  font-size: 1rem;
+  font-size: var(--fs-body);
   line-height: 1.75;
   margin-bottom: 24px;
 }
@@ -809,17 +862,19 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   margin-top: 2px;
 }
 
-/* ============ TILES GRID ============ */
+/* =========================================================
+   TILES
+   ========================================================= */
 .tiles-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: var(--space-grid);
 }
 .tile {
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 32px 28px;
+  padding: clamp(22px, 2.8vw, 32px) clamp(20px, 2.5vw, 28px);
   transition: transform var(--transition), box-shadow var(--transition);
   display: flex;
   flex-direction: column;
@@ -848,14 +903,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   gap: 5px;
 }
 .tile-badge i { font-size: .5rem; }
-.tile-badge.available {
-  background: #d4f0ea;
-  color: var(--brand-primary);
-}
-.tile-badge.soon {
-  background: #f0f0f0;
-  color: var(--text-muted);
-}
+.tile-badge.available { background: #d4f0ea; color: var(--brand-primary); }
+.tile-badge.soon { background: #f0f0f0; color: var(--text-muted); }
 .tile-icon {
   width: 52px;
   height: 52px;
@@ -867,12 +916,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .tile-icon.teal { background: #d4f0ea; color: #0f6c5c; }
 .tile-icon.amber { background: #fdf0d5; color: #b07d1a; }
-.tile-icon.blue { background: #dce8f5; color: #2563a8; }
 .tile-icon.purple { background: #e8dcf5; color: #6b3fa0; }
-.tile-icon.coral { background: #fde2dc; color: #c0442a; }
-.tile-icon.green { background: #e0f0dc; color: #3a7d2a; }
 .tile h3 {
-  font-size: 1.125rem;
+  font-size: var(--fs-h3);
   font-weight: 600;
   margin-bottom: 10px;
 }
@@ -895,11 +941,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .tile-link i { font-size: .75rem; transition: transform var(--transition); }
 .tile-link:hover i { transform: translateX(4px); }
 
-/* ============ NEWS ============ */
+/* =========================================================
+   NEWS
+   ========================================================= */
 .news-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: var(--space-grid);
 }
 .news-card {
   background: var(--white);
@@ -913,13 +961,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   box-shadow: var(--shadow-md);
 }
 .news-card-image {
-  height: 170px;
+  height: clamp(140px, 18vw, 170px);
   display: grid;
   place-items: center;
-  font-size: 3rem;
+  font-size: clamp(2rem, 4vw, 3rem);
   color: rgba(255,255,255,.9);
 }
-.news-card-body { padding: 22px 24px 26px; }
+.news-card-body { padding: clamp(18px, 2.2vw, 22px) clamp(18px, 2.4vw, 24px) clamp(22px, 2.6vw, 26px); }
 .news-tag {
   display: inline-block;
   font-size: .6875rem;
@@ -932,7 +980,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .news-tag.product { background: #d4f0ea; color: #0f6c5c; }
 .news-tag.policy { background: #dce8f5; color: #2563a8; }
-.news-tag.community { background: #fdf0d5; color: #b07d1a; }
 .news-tag.soon { background: #f0f0f0; color: var(--text-muted); }
 .news-card-body h3 {
   font-size: 1.0625rem;
@@ -954,11 +1001,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   gap: 6px;
 }
 
-/* ============ CTA ============ */
+/* =========================================================
+   CTA
+   ========================================================= */
 .cta-banner {
   background: linear-gradient(135deg, #0a4f42, #0f6c5c);
   border-radius: 16px;
-  padding: 60px 48px;
+  padding: clamp(32px, 6vw, 60px) clamp(20px, 4vw, 48px);
   text-align: center;
   color: var(--white);
   position: relative;
@@ -972,13 +1021,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .cta-banner > * { position: relative; z-index: 1; }
 .cta-banner h2 {
-  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-size: var(--fs-h2);
   font-weight: 700;
   margin-bottom: 14px;
   letter-spacing: -.02em;
 }
 .cta-banner p {
-  font-size: 1.0625rem;
+  font-size: var(--fs-body);
   color: rgba(255,255,255,.85);
   max-width: 580px;
   margin: 0 auto 30px;
@@ -993,33 +1042,32 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   gap: 8px;
 }
 
-/* ============ FOOTER ============ */
+/* =========================================================
+   FOOTER
+   ========================================================= */
 .site-footer {
   background: #111;
   color: rgba(255,255,255,.7);
-  padding: 64px 0 32px;
+  padding: clamp(40px, 6vw, 64px) 0 clamp(24px, 4vw, 32px);
   font-size: .875rem;
 }
 .footer-grid {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-  gap: 40px;
-  margin-bottom: 48px;
+  gap: clamp(24px, 4vw, 40px);
+  margin-bottom: clamp(32px, 5vw, 48px);
 }
-.footer-brand .logo {
-  color: var(--white);
-  margin-bottom: 16px;
-}
+.footer-brand .logo { color: var(--white); margin-bottom: 16px; }
 .footer-brand .logo span { color: rgba(255,255,255,.85); }
 .footer-brand p {
   line-height: 1.7;
   max-width: 300px;
   margin-bottom: 20px;
 }
-.footer-social { display: flex; gap: 12px; }
+.footer-social { display: flex; gap: 12px; flex-wrap: wrap; }
 .footer-social a {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: rgba(255,255,255,.08);
   display: grid;
@@ -1041,7 +1089,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   margin-bottom: 18px;
 }
 .footer-col ul li { margin-bottom: 10px; }
-.footer-col ul a {
+.footer-col ul a,
+.footer-col .soon-label {
   transition: color var(--transition);
   line-height: 1.5;
   display: inline-flex;
@@ -1049,27 +1098,17 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   gap: 8px;
 }
 .footer-col ul a:hover { color: var(--white); }
-.footer-col ul a i {
+.footer-col ul a i,
+.footer-col .soon-label i {
   font-size: .625rem;
   color: var(--brand-accent);
   opacity: .8;
 }
-.footer-col .soon-label {
-  color: rgba(255,255,255,.45);
-  font-size: .8125rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-.footer-col .soon-label i {
-  font-size: .625rem;
-  color: var(--brand-accent);
-  opacity: .6;
-}
+.footer-col .soon-label { color: rgba(255,255,255,.45); }
 
 .footer-bottom {
   border-top: 1px solid rgba(255,255,255,.1);
-  padding-top: 28px;
+  padding-top: clamp(20px, 3vw, 28px);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1077,65 +1116,375 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   gap: 16px;
   font-size: .8125rem;
 }
-.footer-bottom-links { display: flex; gap: 24px; flex-wrap: wrap; }
+.footer-bottom-links { display: flex; gap: clamp(14px, 2vw, 24px); flex-wrap: wrap; }
 .footer-bottom-links a:hover { color: var(--white); }
 
-/* ============ MOBILE ============ */
-@media (max-width: 1024px) {
-  .hero .container { grid-template-columns: 1fr; gap: 40px; }
-  .hero-visual { order: -1; }
-  .feature-cards { grid-template-columns: repeat(2, 1fr); }
-  .news-grid { grid-template-columns: repeat(2, 1fr); }
-  .spotlight, .flagship-grid { grid-template-columns: 1fr; gap: 36px; }
-  .spotlight.reverse { direction: ltr; }
-  .tiles-grid { grid-template-columns: repeat(2, 1fr); }
-  .footer-grid { grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 768px) {
-  .nav-links { display: none; }
-  .mobile-toggle { display: grid; }
-  .nav-links.open {
-    display: flex;
-    flex-direction: column;
-    position: absolute;
-    top: 64px;
-    left: 0;
-    right: 0;
-    background: var(--white);
-    border-bottom: 1px solid var(--border);
-    padding: 16px;
-    gap: 4px;
-    box-shadow: var(--shadow-md);
-  }
-  .nav-links.open > li > a,
-  .nav-links.open > li > button { width: 100%; justify-content: flex-start; }
-  .dropdown { position: static; box-shadow: none; border: none; padding-left: 16px; }
-  .feature-cards { grid-template-columns: 1fr; }
-  .news-grid { grid-template-columns: 1fr; }
-  .tiles-grid { grid-template-columns: 1fr; }
-  .feature-grid { grid-template-columns: 1fr; }
-  .footer-grid { grid-template-columns: 1fr; gap: 28px; }
-  .footer-bottom { flex-direction: column; text-align: center; }
-  .hero { padding: 60px 0 56px; }
-  .section { padding: 56px 0; }
-  .cta-banner { padding: 40px 24px; }
-  .utility-bar .container { justify-content: center; gap: 14px; }
-  .utility-bar .container a:not(.highlight) { display: none; }
-  .utility-bar .divider { display: none; }
-  .download-group { flex-direction: column; }
-  .dl-btn { width: 100%; }
-  .dl-btn.soon::after { top: 6px; right: 8px; }
-}
-
-/* ============ ANIMATIONS ============ */
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
 .fade-up {
   opacity: 0;
   transform: translateY(24px);
   transition: opacity .6s ease, transform .6s ease;
 }
-.fade-up.visible {
-  opacity: 1;
-  transform: translateY(0);
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .fade-up { opacity: 1; transform: none; }
+}
+
+/* =========================================================
+   RESPONSIVE — LARGE DESKTOP (≥ 1440px)
+   ========================================================= */
+@media (min-width: 1440px) {
+  :root { --max-width: 1320px; }
+  .hero-content h1 { letter-spacing: -.035em; }
+  .feature-cards { gap: 28px; }
+  .tiles-grid { gap: 28px; }
+}
+
+/* =========================================================
+   RESPONSIVE — 4K / ULTRAWIDE (≥ 1921px)
+   ========================================================= */
+@media (min-width: 1921px) {
+  :root { --max-width: 1440px; }
+  body { font-size: 17px; }
+  .hero { padding: 120px 0 110px; }
+  .section { padding: 100px 0; }
+}
+
+/* =========================================================
+   RESPONSIVE — TABLET LANDSCAPE (≤ 1024px)
+   ========================================================= */
+@media (max-width: 1024px) {
+  .hero .container {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .hero-visual { order: -1; max-width: 640px; margin: 0 auto; width: 100%; }
+  .hero-content { text-align: center; }
+  .hero-content p { margin-left: auto; margin-right: auto; }
+  .hero-badge { margin-left: auto; margin-right: auto; }
+  .hero .download-group { justify-content: center; }
+  .hero-meta { justify-content: center; }
+
+  .feature-cards { grid-template-columns: repeat(2, 1fr); }
+  .news-grid { grid-template-columns: repeat(2, 1fr); }
+  .spotlight, .flagship-grid { grid-template-columns: 1fr; gap: 36px; }
+  .spotlight.reverse { direction: ltr; }
+  .spotlight-visual { max-width: 640px; margin: 0 auto; width: 100%; }
+  .tiles-grid { grid-template-columns: repeat(2, 1fr); }
+
+  .footer-grid { grid-template-columns: 1fr 1fr 1fr; }
+  .footer-brand { grid-column: 1 / -1; }
+  .footer-brand p { max-width: 100%; }
+}
+
+/* =========================================================
+   RESPONSIVE — TABLET PORTRAIT (≤ 768px)
+   ========================================================= */
+@media (max-width: 768px) {
+  /* MOBILE NAV OVERLAY */
+  .mobile-toggle { display: grid; }
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--white);
+    padding: 80px 24px 32px;
+    gap: 6px;
+    overflow-y: auto;
+    z-index: 999;
+    animation: navIn .25s ease-out;
+  }
+  .nav-links.open { display: flex; }
+  @keyframes navIn {
+    from { opacity: 0; transform: translateY(-12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .nav-links > li { width: 100%; }
+  .nav-links > li > a,
+  .nav-links > li > button {
+    width: 100%;
+    justify-content: space-between;
+    padding: 14px 16px;
+    font-size: 1rem;
+    border-radius: var(--radius);
+  }
+  .nav-links > li > button .fa-chevron-down {
+    margin-left: auto;
+    font-size: .75rem;
+  }
+  .dropdown {
+    position: static;
+    box-shadow: none;
+    border: none;
+    padding: 4px 0 4px 12px;
+    margin-top: 2px;
+    min-width: 0;
+    display: block;
+  }
+  .dropdown a { padding: 12px 14px; font-size: .9375rem; }
+
+  /* Mobile toggle becomes sticky-close */
+  .mobile-toggle {
+    position: relative;
+    z-index: 1001;
+    background: var(--white);
+  }
+
+  /* Layout adjustments */
+  .feature-cards { grid-template-columns: 1fr; }
+  .news-grid { grid-template-columns: 1fr; }
+  .tiles-grid { grid-template-columns: 1fr; }
+  .feature-grid { grid-template-columns: 1fr; }
+
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+  .footer-brand { grid-column: 1 / -1; }
+
+  .footer-bottom { flex-direction: column; text-align: center; }
+  .footer-bottom-links { justify-content: center; }
+
+  .section-header { text-align: left; }
+  .section-header h2 { font-size: clamp(1.375rem, 5vw, 1.875rem); }
+
+  /* Download buttons stack full-width */
+  .download-group { flex-direction: column; width: 100%; }
+  .dl-btn {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 14px 20px;
+  }
+  .dl-btn.soon::after { top: 8px; right: 10px; }
+
+  /* CTA buttons center */
+  .cta-banner .download-group { align-items: stretch; }
+
+  /* Hero image badge scales */
+  .hero-image-badge { font-size: .75rem; padding: 6px 12px; }
+  .hero-image-badge i { font-size: .75rem; }
+
+  /* App preview tables scroll */
+  .app-body { padding: 14px; }
+  .app-table { min-width: 460px; }
+
+  /* Hide non-essential utility bar items */
+  .utility-bar .container { justify-content: center; gap: 12px; }
+  .utility-bar .container a:not(.highlight),
+  .utility-bar .divider { display: none; }
+}
+
+/* =========================================================
+   RESPONSIVE — PHONE (≤ 640px)
+   ========================================================= */
+@media (max-width: 640px) {
+  :root {
+    --space-section: 48px;
+    --space-gutter: 16px;
+  }
+  .hero { padding: 40px 0 40px; }
+  .hero-meta {
+    gap: 16px;
+    justify-content: space-between;
+  }
+  .hero-meta span { font-size: .75rem; }
+  .hero-meta span strong { font-size: .875rem; }
+
+  .cta-banner { border-radius: 12px; }
+  .spotlight-visual { border-radius: 12px; }
+  .app-preview { border-radius: 10px; }
+
+  .tile-badge { top: 12px; right: 12px; }
+  .tile-icon { width: 44px; height: 44px; font-size: 1.2rem; }
+  .feature-card .fc-num { font-size: .6875rem; padding: 2px 7px; }
+
+  .footer-grid { grid-template-columns: 1fr; gap: 24px; }
+  .footer-social a { width: 44px; height: 44px; }
+}
+
+/* =========================================================
+   RESPONSIVE — SMALL PHONE (≤ 480px)
+   ========================================================= */
+@media (max-width: 480px) {
+  .utility-bar { font-size: .6875rem; padding: 5px 0; }
+  .utility-bar .highlight { font-size: .75rem; }
+
+  .logo { font-size: 1.05rem; gap: 8px; }
+  .logo-mark { width: 26px; height: 26px; font-size: .8125rem; }
+  .search-toggle { display: none; }
+  .navbar .container { height: 56px; }
+
+  .nav-actions .btn { padding: 8px 14px; font-size: .8125rem; }
+
+  .hero-badge {
+    font-size: .6875rem;
+    padding: 5px 12px;
+    gap: 6px;
+  }
+
+  .hero-content h1 { letter-spacing: -.02em; }
+  .hero-content p { font-size: .9375rem; }
+
+  .hero-image-wrapper { aspect-ratio: 1 / 1; }
+  .hero-image-badge {
+    font-size: .6875rem;
+    padding: 5px 10px;
+    top: 12px;
+    left: 12px;
+    gap: 6px;
+  }
+
+  .dl-btn { padding: 12px 16px; min-height: 52px; gap: 12px; }
+  .dl-btn .dl-icon { width: 28px; height: 28px; font-size: 1.5rem; }
+  .dl-btn .dl-icon i { font-size: 1.5rem; }
+  .dl-btn .dl-icon .win11-icon { width: 1.2rem; height: 1.2rem; }
+  .dl-btn .dl-text { font-size: .875rem; }
+  .dl-btn .dl-text small { font-size: .625rem; }
+
+  .flagship-meta {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .spotlight-content h2 { font-size: 1.25rem; }
+  .spotlight-visual-inner .spotlight-icon { font-size: 1.75rem; }
+
+  .cta-note {
+    font-size: .75rem;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    gap: 4px;
+  }
+
+  /* Prevent table overflow clipping */
+  .app-body {
+    padding: 12px;
+    font-size: .6875rem;
+    margin: 0 -4px;
+  }
+  .app-table { min-width: 420px; font-size: .625rem; }
+  .app-table th { padding: 6px 8px; font-size: .5625rem; }
+  .app-table td { padding: 6px 8px; }
+  .app-title { font-size: .625rem; max-width: 60%; }
+  .app-statusbar { font-size: .625rem; }
+}
+
+/* =========================================================
+   RESPONSIVE — VERY SMALL PHONE (≤ 360px)
+   ========================================================= */
+@media (max-width: 360px) {
+  :root {
+    --space-section: 40px;
+    --space-gutter: 14px;
+  }
+
+  .logo span { display: none; }
+  .logo { font-size: 1rem; }
+  .nav-actions .btn { padding: 7px 12px; font-size: .75rem; }
+  .nav-actions .btn i { display: none; }
+
+  .hero-badge { font-size: .625rem; padding: 4px 10px; }
+  .hero-content h1 { font-size: 1.5rem; }
+  .hero-content p { font-size: .875rem; }
+
+  .hero-meta {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .dl-btn .dl-text small { display: none; }
+  .dl-btn .dl-text { font-size: .8125rem; }
+
+  .feature-grid { gap: 10px; }
+  .feature-item { font-size: .875rem; }
+  .check-list li { font-size: .875rem; }
+
+  .section-header h2 { font-size: 1.25rem; }
+  .section-header p { font-size: .875rem; }
+
+  .app-body { padding: 10px; }
+  .app-table { min-width: 380px; font-size: .5625rem; }
+  .app-chip { font-size: .625rem; padding: 3px 8px; }
+}
+
+/* =========================================================
+   RESPONSIVE — LANDSCAPE PHONE
+   ========================================================= */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero { padding: 32px 0; }
+  .hero .container { gap: 24px; }
+  .hero-image-wrapper { max-height: 50vh; aspect-ratio: auto; }
+  .hero-image-wrapper img { height: 50vh; }
+  .nav-links {
+    padding: 64px 24px 24px;
+  }
+  .section { padding: 40px 0; }
+}
+
+/* =========================================================
+   TOUCH DEVICE OPTIMIZATIONS
+   ========================================================= */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger tap targets */
+  .nav-links > li > a,
+  .nav-links > li > button { padding: 12px 16px; }
+
+  /* Disable hover transforms — they feel laggy on touch */
+  .tile:hover,
+  .feature-card:hover,
+  .news-card:hover,
+  .dl-btn:hover { transform: none; }
+
+  /* Enable :active states instead */
+  .tile:active,
+  .feature-card:active,
+  .news-card:active { transform: scale(.985); transition: transform .1s; }
+
+  .dl-btn:active { transform: scale(.97); }
+
+  /* Smoother scrolling on iOS */
+  .nav-links { -webkit-overflow-scrolling: touch; }
+}
+
+/* =========================================================
+   PRINT STYLES
+   ========================================================= */
+@media print {
+  .navbar, .utility-bar, .mobile-toggle, .hero-visual,
+  .download-group, .cta-banner, .site-footer { display: none; }
+  body { color: #000; background: #fff; }
+  .hero { background: #fff; color: #000; padding: 20px 0; }
+  .hero-content h1, .hero-content h1 em { color: #000; }
+  a { color: #000; text-decoration: underline; }
+  .section { padding: 20px 0; page-break-inside: avoid; }
+}
+
+/* =========================================================
+   SAFE AREA (notched devices)
+   ========================================================= */
+@supports (padding: env(safe-area-inset-left)) {
+  .container {
+    padding-left: max(var(--space-gutter), env(safe-area-inset-left));
+    padding-right: max(var(--space-gutter), env(safe-area-inset-right));
+  }
+  .navbar .container {
+    padding-left: max(var(--space-gutter), env(safe-area-inset-left));
+    padding-right: max(var(--space-gutter), env(safe-area-inset-right));
+  }
 }
 </style>
 </head>
@@ -1149,15 +1498,11 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       Download for Windows
     </a>
     <span class="divider">|</span>
-    <a href="#">
-      <i class="fa-solid fa-globe"></i>
-      Philippines (English)
-    </a>
+    <a href="#"><i class="fa-solid fa-globe"></i> Philippines (English)</a>
     <span class="divider">|</span>
-    <a href="#">
-      <i class="fa-solid fa-circle-question"></i>
-      Help &amp; Support
-    </a>
+    <a href="#"><i class="fa-solid fa-right-to-bracket"></i> Sign in</a>
+    <span class="divider">|</span>
+    <a href="#"><i class="fa-solid fa-circle-question"></i> Help &amp; Support</a>
   </div>
 </div>
 
@@ -1215,9 +1560,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       </button>
       <a href="#download" class="btn btn-primary">
         <i class="fa-solid fa-download"></i>
-        Download Free
+        Download
       </a>
-      <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
+      <button class="mobile-toggle" id="mobileToggle" aria-label="Menu" aria-expanded="false">
         <i class="fa-solid fa-bars"></i>
       </button>
     </div>
@@ -1230,7 +1575,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     <div class="hero-content">
       <div class="hero-badge">
         <i class="fa-solid fa-wand-magic-sparkles"></i>
-        Available now for Windows · macOS coming soon
+        Available now for Windows
       </div>
       <h1>Meet your new <em>e-Class Record.</em><br>Built for Filipino teachers.</h1>
       <p>A desktop app for managing learners, activities, scores, term grades, and Excel ECR templates — with automatic grade computation and one-click class-record packaging.</p>
@@ -1253,7 +1598,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       </div>
       <div class="hero-meta">
         <span><strong>Free</strong>for teachers</span>
-        <span><strong>v1.0.0</strong>Windows available now</span>
+        <span><strong>v1.0.0</strong>Windows available</span>
         <span><strong>Offline</strong>no internet required</span>
       </div>
     </div>
@@ -1261,7 +1606,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       <div class="hero-image-wrapper">
         <img src="teacher-hero.jpg"
              alt="A teacher smiling in front of a classroom chalkboard, holding a book"
-             loading="eager">
+             loading="eager"
+             decoding="async">
         <div class="hero-image-badge">
           <i class="fa-solid fa-circle-check"></i>
           Made for Filipino classrooms
@@ -1271,7 +1617,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   </div>
 </section>
 
-<!-- ====== FLAGSHIP: PINCH E-CLASS RECORD ====== -->
+<!-- ====== FLAGSHIP ====== -->
 <section class="section flagship">
   <div class="container">
     <div class="flagship-grid">
@@ -1316,13 +1662,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         </div>
       </div>
 
-      <div class="flagship-content fade-up" style="display:flex; flex-direction:column; gap:20px;">
+      <div class="flagship-content fade-up">
         <div class="app-preview">
           <div class="app-titlebar">
             <span class="app-dot red"></span>
             <span class="app-dot yellow"></span>
             <span class="app-dot green"></span>
-            <span class="app-title">Term 1 — Grade 10 - Rizal · Written Works</span>
+            <span class="app-title">Term 1 — Grade 10 Rizal · Written Works</span>
           </div>
           <div class="app-body">
             <div class="app-toolbar">
@@ -1355,7 +1701,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   </div>
 </section>
 
-<!-- ====== FULL 11-FEATURE GRID ====== -->
+<!-- ====== 11-FEATURE GRID ====== -->
 <section class="section section-alt" id="features">
   <div class="container">
     <div class="section-header fade-up">
@@ -1363,82 +1709,70 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       <p>Eleven built-in capabilities — from activity-level scoring to portable class-record packaging.</p>
     </div>
     <div class="feature-cards">
-
       <article class="feature-card fade-up">
         <span class="fc-num">01</span>
         <h3><i class="fa-solid fa-square-check"></i> Per-Activity Scoring</h3>
         <p>Record individual student scores for activities and organize them by component — <strong>Written Works</strong>, <strong>Performance Tasks</strong>, and <strong>Exam</strong>. Component percentages are calculated automatically.</p>
       </article>
-
       <article class="feature-card fade-up">
         <span class="fc-num">02</span>
         <h3><i class="fa-solid fa-calculator"></i> Per-Term Grade Computation</h3>
         <p>Each term is calculated separately. Supports <strong>1st, 2nd, and 3rd Terms</strong>, with the <strong>Final Grade</strong> derived from whichever term grades are available.</p>
       </article>
-
       <article class="feature-card fade-up">
         <span class="fc-num">03</span>
         <h3><i class="fa-solid fa-file-excel"></i> Excel ECR Template Filling</h3>
         <p>Fills your selected Excel template and term sheet while preserving the original workbook structure — including <strong>merged cells</strong>, which are written to the correct merge anchor.</p>
       </article>
-
       <article class="feature-card fade-up">
         <span class="fc-num">04</span>
         <h3><i class="fa-solid fa-users"></i> Learner Management</h3>
         <p>Manage students with <strong>LRN, Last Name, First Name, Middle Name, and Sex</strong>. The interface provides built-in sorting and student deletion.</p>
       </article>
-
       <article class="feature-card fade-up">
         <span class="fc-num">05</span>
         <h3><i class="fa-solid fa-file-import"></i> Student Import</h3>
         <p>Import learners from supported files: <code>.xlsx</code><code>.xlsm</code><code>.csv</code><code>.tsv</code><code>.txt</code><code>.json</code>. The importer detects LRN, Last Name, and First Name.</p>
       </article>
-
       <article class="feature-card fade-up">
         <span class="fc-num">06</span>
         <h3><i class="fa-solid fa-folder-open"></i> Class Record Management</h3>
         <p>Save, reopen, and manage class records as portable <code>.clrx</code> Class Record files — one file per section, easy to back up and share.</p>
       </article>
-
       <article class="feature-card fade-up">
         <span class="fc-num">07</span>
         <h3><i class="fa-solid fa-box-archive"></i> Embedded ECR Excel</h3>
         <p>When a class record is saved, the generated ECR Excel file is packaged <em>inside</em> the <code>.clrx</code> file — so your data and output stay together.</p>
       </article>
-
       <article class="feature-card fade-up">
         <span class="fc-num">08</span>
         <h3><i class="fa-solid fa-table-list"></i> Summary View</h3>
         <p>A dedicated Summary tab shows every learner's <strong>Name, Term 1, Term 2, Term 3, and Final Grade</strong> in a single view.</p>
       </article>
-
       <article class="feature-card fade-up">
         <span class="fc-num">09</span>
         <h3><i class="fa-solid fa-file-lines"></i> Template Selection</h3>
         <p>Choose Excel templates manually, or let the application auto-detect templates from its built-in template directories.</p>
       </article>
-
       <article class="feature-card fade-up">
         <span class="fc-num">10</span>
         <h3><i class="fa-solid fa-database"></i> Local Data Storage</h3>
         <p>Class and activity data is stored in a local <strong>SQLite database</strong> inside your user profile — the app folder itself doesn't need to be writable.</p>
       </article>
-
       <article class="feature-card fade-up">
         <span class="fc-num">11</span>
         <h3><i class="fa-solid fa-window-restore"></i> Splash Screen &amp; GUI</h3>
         <p>A clean graphical interface with a startup splash screen. The main window stays hidden while the splash displays, then appears when everything is ready.</p>
       </article>
-
     </div>
   </div>
 </section>
 
-<!-- ====== SPOTLIGHT 1 — Excel template filling ====== -->
+<!-- ====== SPOTLIGHT 1 ====== -->
 <section class="section">
   <div class="container">
     <div class="spotlight fade-up">
-      <div class="spotlight-visual" style="background: linear-gradient(135deg, #0f6c5c, #148f7a);">
+      <div class="spotlight-visual">
         <div class="spotlight-visual-inner">
           <div class="spotlight-icon"><i class="fa-solid fa-file-zipper"></i></div>
           <div class="big-number">.clrx</div>
@@ -1463,7 +1797,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   </div>
 </section>
 
-<!-- ====== SPOTLIGHT 2 — Offline + local storage ====== -->
+<!-- ====== SPOTLIGHT 2 ====== -->
 <section class="section section-alt">
   <div class="container">
     <div class="spotlight reverse fade-up">
@@ -1493,7 +1827,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   </div>
 </section>
 
-<!-- ====== PRODUCT TILES ====== -->
+<!-- ====== TILES ====== -->
 <section class="section">
   <div class="container">
     <div class="section-header fade-up">
@@ -1554,9 +1888,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
           <span class="news-tag product">Product</span>
           <h3>Pinch E-Class Record v1.0.0 released for Windows</h3>
           <p>Initial public release. Per-activity scoring, per-term grade computation, Excel ECR template filling, and portable <code>.clrx</code> class records.</p>
-          <div class="news-date">
-            <i class="fa-regular fa-circle-check"></i> Now available
-          </div>
+          <div class="news-date"><i class="fa-regular fa-circle-check"></i> Now available</div>
         </div>
       </article>
       <article class="news-card fade-up">
@@ -1567,9 +1899,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
           <span class="news-tag soon">Coming soon</span>
           <h3>macOS version in development</h3>
           <p>A native macOS build of Pinch E-Class Record is underway. Expect the same term-grade computation, template filling, and <code>.clrx</code> class records.</p>
-          <div class="news-date">
-            <i class="fa-regular fa-clock"></i> Announced
-          </div>
+          <div class="news-date"><i class="fa-regular fa-clock"></i> Announced</div>
         </div>
       </article>
       <article class="news-card fade-up">
@@ -1580,16 +1910,14 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
           <span class="news-tag policy">Documentation</span>
           <h3>User guide now available</h3>
           <p>Step-by-step walkthrough covering learner import, activity setup, term grade computation, and template selection.</p>
-          <div class="news-date">
-            <i class="fa-regular fa-file-lines"></i> Read online
-          </div>
+          <div class="news-date"><i class="fa-regular fa-file-lines"></i> Read online</div>
         </div>
       </article>
     </div>
   </div>
 </section>
 
-<!-- ====== CTA BANNER ====== -->
+<!-- ====== CTA ====== -->
 <section class="section">
   <div class="container">
     <div class="cta-banner fade-up">
@@ -1640,30 +1968,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       <div class="footer-col">
         <h4>Products</h4>
         <ul>
-          <li>
-            <a href="#download">
-              <i class="fa-solid fa-chevron-right"></i>
-              Pinch E-Class Record (Windows)
-            </a>
-          </li>
-          <li>
-            <span class="soon-label">
-              <i class="fa-solid fa-chevron-right"></i>
-              Pinch E-Class Record (macOS) — soon
-            </span>
-          </li>
-          <li>
-            <a href="#">
-              <i class="fa-solid fa-chevron-right"></i>
-              Classroom (soon)
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <i class="fa-solid fa-chevron-right"></i>
-              Assessments (soon)
-            </a>
-          </li>
+          <li><a href="#download"><i class="fa-solid fa-chevron-right"></i> Pinch E-Class Record (Windows)</a></li>
+          <li><span class="soon-label"><i class="fa-solid fa-chevron-right"></i> E-Class Record (macOS) — soon</span></li>
+          <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Classroom (soon)</a></li>
+          <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Assessments (soon)</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -1679,7 +1987,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         <h4>Resources</h4>
         <ul>
           <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Help Center</a></li>
-          <li><a href="#"><i class="fa-solid fa-chevron-right"></i> e-Class Record User Guide</a></li>
+          <li><a href="#"><i class="fa-solid fa-chevron-right"></i> User Guide</a></li>
           <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Video Tutorials</a></li>
           <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Release Notes</a></li>
         </ul>
@@ -1712,7 +2020,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
    PINCHEDU — SITE FUNCTIONS
    ============================================================ */
 
-/* ====== 1. STICKY NAV SHADOW ====== */
+/* 1. STICKY NAV SHADOW */
 (function initStickyNav() {
   const navbar = document.getElementById('navbar');
   if (!navbar) return;
@@ -1721,47 +2029,53 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   onScroll();
 })();
 
-/* ====== 2. MOBILE NAV TOGGLE ====== */
+/* 2. MOBILE NAV TOGGLE */
 (function initMobileNav() {
   const mobileToggle = document.getElementById('mobileToggle');
   const navLinks = document.getElementById('navLinks');
   if (!mobileToggle || !navLinks) return;
 
-  const ICON_OPEN = '<i class="fa-solid fa-bars"></i>';
+  const ICON_OPEN  = '<i class="fa-solid fa-bars"></i>';
   const ICON_CLOSE = '<i class="fa-solid fa-xmark"></i>';
 
+  const setOpen = (open) => {
+    navLinks.classList.toggle('open', open);
+    mobileToggle.innerHTML = open ? ICON_CLOSE : ICON_OPEN;
+    mobileToggle.setAttribute('aria-expanded', String(open));
+    document.body.style.overflow = open && window.innerWidth <= 768 ? 'hidden' : '';
+  };
+
   mobileToggle.addEventListener('click', () => {
-    const isOpen = navLinks.classList.toggle('open');
-    mobileToggle.innerHTML = isOpen ? ICON_CLOSE : ICON_OPEN;
-    mobileToggle.setAttribute('aria-expanded', String(isOpen));
+    setOpen(!navLinks.classList.contains('open'));
   });
 
   navLinks.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => {
-      navLinks.classList.remove('open');
-      mobileToggle.innerHTML = ICON_OPEN;
-      mobileToggle.setAttribute('aria-expanded', 'false');
-    });
+    link.addEventListener('click', () => setOpen(false));
   });
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && navLinks.classList.contains('open')) {
-      navLinks.classList.remove('open');
-      mobileToggle.innerHTML = ICON_OPEN;
-      mobileToggle.setAttribute('aria-expanded', 'false');
-    }
+    if (e.key === 'Escape' && navLinks.classList.contains('open')) setOpen(false);
   });
 
   document.addEventListener('click', e => {
     if (!navLinks.classList.contains('open')) return;
     if (navLinks.contains(e.target) || mobileToggle.contains(e.target)) return;
-    navLinks.classList.remove('open');
-    mobileToggle.innerHTML = ICON_OPEN;
-    mobileToggle.setAttribute('aria-expanded', 'false');
+    setOpen(false);
+  });
+
+  // Close nav on resize past breakpoint
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (window.innerWidth > 768 && navLinks.classList.contains('open')) {
+        setOpen(false);
+      }
+    }, 150);
   });
 })();
 
-/* ====== 3. SCROLL REVEAL (fade-up) ====== */
+/* 3. SCROLL REVEAL */
 (function initScrollReveal() {
   const elements = document.querySelectorAll('.fade-up');
   if (!elements.length) return;
@@ -1783,7 +2097,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   elements.forEach(el => observer.observe(el));
 })();
 
-/* ====== 4. SMOOTH SCROLL FOR #download ====== */
+/* 4. SMOOTH SCROLL FOR #download */
 (function initSmoothDownload() {
   document.querySelectorAll('a[href="#download"]').forEach(a => {
     a.addEventListener('click', e => {
@@ -1795,42 +2109,30 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   });
 })();
 
-/* ====== 5. PREVENT DEFAULT FOR PLACEHOLDER LINKS ====== */
+/* 5. PLACEHOLDER LINKS */
 (function initPlaceholderLinks() {
   document.querySelectorAll('a[href="#"]').forEach(a => {
-    a.addEventListener('click', e => {
-      if (a.classList.contains('soon')) {
-        e.preventDefault();
-        return;
-      }
-      e.preventDefault();
-    });
+    a.addEventListener('click', e => e.preventDefault());
   });
 })();
 
-/* ====== 6. GUARD "SOON" BUTTONS ====== */
+/* 6. SOON BUTTONS */
 (function initSoonButtons() {
   document.querySelectorAll('.dl-btn.soon').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.preventDefault();
-      e.stopPropagation();
-    });
+    btn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); });
     btn.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-      }
+      if (e.key === 'Enter' || e.key === ' ') e.preventDefault();
     });
   });
 })();
 
-/* ====== 7. ACTIVE NAV LINK HIGHLIGHT ON SCROLL ====== */
+/* 7. ACTIVE NAV HIGHLIGHT */
 (function initActiveNavHighlight() {
   const sections = [
     { id: 'features', href: '#features' },
     { id: 'download', href: '#download' }
   ];
   const navAnchors = document.querySelectorAll('.nav-links > li > a');
-
   if (!('IntersectionObserver' in window) || !sections.length) return;
 
   const setActive = (href) => {
@@ -1856,14 +2158,14 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   });
 })();
 
-/* ====== 8. COPY-TO-CLIPBOARD FOR FILE EXTENSIONS ====== */
+/* 8. COPY-TO-CLIPBOARD ON CODE CHIPS */
 (function initCodeCopy() {
   document.querySelectorAll('.feature-card code').forEach(code => {
     code.style.cursor = 'pointer';
     code.title = 'Click to copy';
     code.addEventListener('click', () => {
       const text = code.textContent.trim();
-      if (navigator.clipboard && navigator.clipboard.writeText) {
+      if (navigator.clipboard?.writeText) {
         navigator.clipboard.writeText(text).then(() => {
           const original = code.textContent;
           code.textContent = '✓ copied';
@@ -1874,7 +2176,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   });
 })();
 
-/* ====== 9. IMAGE FALLBACK (if hero photo missing) ====== */
+/* 9. IMAGE FALLBACK */
 (function initImageFallback() {
   const heroImg = document.querySelector('.hero-image-wrapper img');
   if (!heroImg) return;
@@ -1895,7 +2197,36 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   });
 })();
 
-/* ====== 10. LOG INITIALIZATION ====== */
+/* 10. LAZY-LOAD BELOW-THE-FOLD IMAGES */
+(function initLazyImages() {
+  if (!('IntersectionObserver' in window)) return;
+  const imgs = document.querySelectorAll('img[data-src]');
+  if (!imgs.length) return;
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.src = entry.target.dataset.src;
+        entry.target.removeAttribute('data-src');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { rootMargin: '200px 0px' });
+
+  imgs.forEach(img => io.observe(img));
+})();
+
+/* 11. VIEWPORT HEIGHT FIX FOR MOBILE BROWSERS */
+(function initViewportFix() {
+  const setVH = () => {
+    document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+  };
+  setVH();
+  window.addEventListener('resize', setVH);
+  window.addEventListener('orientationchange', () => setTimeout(setVH, 100));
+})();
+
+/* 12. LOG */
 console.log(
   '%cPinchEdu%c — all functions loaded ✓',
   'color:#0f6c5c;font-weight:700;font-size:14px;',
